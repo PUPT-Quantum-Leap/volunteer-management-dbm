@@ -660,6 +660,22 @@
                 <div class="stat-label">Lifegroup</div>
                 <div class="stat-value">{{ ucfirst($volunteer->lifegroup) }}</div>
             </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-label">Attendance Rate</div>
+                <div class="stat-value">{{ $attendanceRate }}%</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-label">Total Attendance</div>
+                <div class="stat-value">{{ $attendanceStats['total'] }}</div>
+            </div>
         </div>
 
         <!-- Alerts -->
@@ -691,6 +707,12 @@
             </button>
             <button class="tab-button" onclick="switchTab('polls', event)">
                 <i class="fas fa-poll"></i> Polls
+            </button>
+            <button class="tab-button" onclick="switchTab('attendance', event)">
+                <i class="fas fa-calendar-check"></i> Attendance
+            </button>
+            <button class="tab-button" onclick="switchTab('performance', event)">
+                <i class="fas fa-star"></i> Performance
             </button>
             <button class="tab-button" onclick="switchTab('edit', event)">
                 <i class="fas fa-edit"></i> Edit Profile
@@ -973,6 +995,155 @@
                     @csrf
                     @method('DELETE')
                 </form>
+            </div>
+        </div>
+
+        <!-- Attendance Tab -->
+        <div id="attendance" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Attendance Tracking</h2>
+                </div>
+
+                <!-- Attendance Summary Stats -->
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Records</div>
+                        <div class="stat-value">{{ $attendanceStats['total'] }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Present</div>
+                        <div class="stat-value" style="color: #10b981;">{{ $attendanceStats['present'] }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Absent</div>
+                        <div class="stat-value" style="color: #ef4444;">{{ $attendanceStats['absent'] }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Excused</div>
+                        <div class="stat-value" style="color: #f59e0b;">{{ $attendanceStats['excused'] }}</div>
+                    </div>
+                </div>
+
+                <!-- Attendance Rate Progress -->
+                <div style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span class="form-label">Attendance Rate</span>
+                        <span class="form-label" style="font-weight: 700;">{{ $attendanceRate }}%</span>
+                    </div>
+                    <div class="poll-bar" style="height: 2.5rem; border-radius: 1rem;">
+                        <div class="poll-fill" style="width: {{ $attendanceRate }}%; border-radius: 1rem 0 0 1rem;">
+                            {{ $attendanceRate }}%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Attendance Records -->
+                @if ($attendanceRecords->count() > 0)
+                    <div style="margin-top: 2rem;">
+                        <h3 class="form-label" style="font-size: 1.1rem; margin-bottom: 1.5rem;">Recent Records</h3>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid #3a3a3a;">
+                                        <th style="padding: 1rem; text-align: left; color: #999; font-size: 0.875rem; font-weight: 600;">Date</th>
+                                        <th style="padding: 1rem; text-align: left; color: #999; font-size: 0.875rem; font-weight: 600;">Event</th>
+                                        <th style="padding: 1rem; text-align: left; color: #999; font-size: 0.875rem; font-weight: 600;">Status</th>
+                                        <th style="padding: 1rem; text-align: left; color: #999; font-size: 0.875rem; font-weight: 600;">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($attendanceRecords as $record)
+                                        <tr style="border-bottom: 1px solid #3a3a3a;">
+                                            <td style="padding: 1rem; color: #fff;">{{ $record->attendance_date->format('M d, Y') }}</td>
+                                            <td style="padding: 1rem; color: #fff;">{{ $record->event_name ?? 'General' }}</td>
+                                            <td style="padding: 1rem;">
+                                                <span style="padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600;
+                                                    @if ($record->status === 'present') background-color: rgba(16, 185, 129, 0.2); color: #10b981;
+                                                    @elseif ($record->status === 'absent') background-color: rgba(239, 68, 68, 0.2); color: #ef4444;
+                                                    @else background-color: rgba(245, 158, 11, 0.2); color: #f59e0b;
+                                                    @endif
+                                                ">
+                                                    {{ ucfirst($record->status) }}
+                                                </span>
+                                            </td>
+                                            <td style="padding: 1rem; color: #999; font-size: 0.875rem;">{{ $record->notes ?? '—' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @else
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>No attendance records available yet.</span>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Performance Tab -->
+        <div id="performance" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Performance Tracking</h2>
+                </div>
+
+                @if ($performanceRecords->count() > 0)
+                    <div class="stats-grid" style="margin-bottom: 2rem;">
+                        @foreach ($performanceRecords as $metricName => $data)
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-{{ $metricName === 'reliability' ? 'shield-alt' : ($metricName === 'punctuality' ? 'clock' : 'thumbs-up') }}"></i>
+                                </div>
+                                <div class="stat-label">{{ ucfirst($metricName) }}</div>
+                                <div class="stat-value">{{ $data['average'] }}/100</div>
+                                <div style="font-size: 0.75rem; color: #999; margin-top: 0.5rem;">{{ $data['count'] }} evaluation{{ $data['count'] !== 1 ? 's' : '' }}</div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Detailed Performance Records -->
+                    <div style="margin-top: 2rem;">
+                        <h3 class="form-label" style="font-size: 1.1rem; margin-bottom: 1.5rem;">Performance History</h3>
+                        @foreach ($performanceRecords as $metricName => $data)
+                            <div style="margin-bottom: 2rem; padding: 1.5rem; background-color: #1a1a1a; border-radius: 0.75rem; border-left: 4px solid #ff6b35;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <h4 style="font-size: 1rem; font-weight: 600; color: #fff; margin: 0;">{{ ucfirst($metricName) }}</h4>
+                                    <div style="display: flex; gap: 1rem; font-size: 0.875rem;">
+                                        <span style="color: #999;">Average: <strong style="color: #ff6b35;">{{ $data['average'] }}/100</strong></span>
+                                        <span style="color: #999;">Latest: <strong style="color: #ff6b35;">{{ $data['latest']->score }}/100</strong></span>
+                                    </div>
+                                </div>
+
+                                <!-- Score Bar -->
+                                <div style="margin-bottom: 1rem;">
+                                    <div class="poll-bar">
+                                        <div class="poll-fill" style="width: {{ $data['average'] }}%; background: linear-gradient(90deg, #10b981, #14b8a6);">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Latest Feedback -->
+                                @if ($data['latest']->feedback)
+                                    <div style="background-color: #2a2a2a; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
+                                        <div style="font-size: 0.875rem; color: #999; margin-bottom: 0.5rem;">Latest Feedback ({{ $data['latest']->created_at->format('M d, Y') }})</div>
+                                        <div style="color: #fff; line-height: 1.6;">{{ $data['latest']->feedback }}</div>
+                                        @if ($data['latest']->evaluated_by)
+                                            <div style="font-size: 0.75rem; color: #666; margin-top: 0.5rem;">— {{ $data['latest']->evaluated_by }}</div>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>No performance evaluations available yet.</span>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

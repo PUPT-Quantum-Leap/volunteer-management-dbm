@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Volunteer;
 use App\Models\Poll;
+use App\Models\Attendance;
+use App\Models\PerformanceTracking;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -28,9 +30,43 @@ class VolunteerDashboardController extends Controller
             ];
         })->toArray();
 
+        // Fetch attendance data
+        $attendanceRecords = Attendance::where('volunteer_id', $id)
+            ->orderBy('attendance_date', 'desc')
+            ->limit(10)
+            ->get();
+
+        $attendanceStats = [
+            'total' => Attendance::where('volunteer_id', $id)->count(),
+            'present' => Attendance::where('volunteer_id', $id)->where('status', 'present')->count(),
+            'absent' => Attendance::where('volunteer_id', $id)->where('status', 'absent')->count(),
+            'excused' => Attendance::where('volunteer_id', $id)->where('status', 'excused')->count(),
+        ];
+
+        $attendanceRate = $attendanceStats['total'] > 0
+            ? round(($attendanceStats['present'] / $attendanceStats['total']) * 100)
+            : 0;
+
+        // Fetch performance data
+        $performanceRecords = PerformanceTracking::where('volunteer_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('metric_name')
+            ->map(function ($records) {
+                return [
+                    'latest' => $records->first(),
+                    'average' => round($records->avg('score')),
+                    'count' => $records->count(),
+                ];
+            });
+
         return view('volunteer-dashboard-new', [
             'volunteer' => $volunteer,
             'polls' => $polls,
+            'attendanceRecords' => $attendanceRecords,
+            'attendanceStats' => $attendanceStats,
+            'attendanceRate' => $attendanceRate,
+            'performanceRecords' => $performanceRecords,
         ]);
     }
 

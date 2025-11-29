@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Volunteer extends Model
 {
@@ -25,6 +26,7 @@ class Volunteer extends Model
         'emergency_relation',
         'emergency_phone',
         'emergency_email',
+        'user_id',
     ];
 
     protected $casts = [
@@ -32,4 +34,14 @@ class Volunteer extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function attendance(): HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function performanceTracking(): HasMany
+    {
+        return $this->hasMany(PerformanceTracking::class);
+    }
 }
