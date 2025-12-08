@@ -6,7 +6,7 @@ useDefault = true
 [[rules]]
 id = "laravel-app-key"
 description = "Laravel APP_KEY"
-regex = '''APP_KEY=(?!base64:)[A-Za-z0-9+/]{32,}'''
+regex = '''APP_KEY=[A-Za-z0-9+/]{32,}'''
 tags = ["laravel", "key"]
 
 [[rules]]
@@ -95,30 +95,30 @@ description = "Global allowlist"
 regexes = [
   # Laravel specific false positives
   '''APP_KEY=base64:''',
-  '''APP_KEY=\$\{.*\}''',
-  '''DB_PASSWORD=\$\{.*\}''',
-  '''MAIL_PASSWORD=\$\{.*\}''',
-  '''JWT_SECRET=\$\{.*\}''',
+  '''APP_KEY=\$\{''',
+  '''DB_PASSWORD=\$\{''',
+  '''MAIL_PASSWORD=\$\{''',
+  '''JWT_SECRET=\$\{''',
 
   # Common test/example values
-  '''password.*123456''',
-  '''password.*password''',
-  '''secret.*secret''',
-  '''key.*key''',
+  '''password123456''',
+  '''passwordpassword''',
+  '''secretsecret''',
+  '''keykey''',
 
   # Placeholder values
   '''your-.*-here''',
   '''replace-.*-with''',
-  '''example.*key''',
-  '''dummy.*value''',
+  '''examplekey''',
+  '''dummyvalue''',
 
   # Documentation and comments
-  '''# .*APP_KEY.*''',
-  '''// .*APP_KEY.*''',
-  '''/\* .*APP_KEY.* \*/''',
+  '''# APP_KEY''',
+  '''// APP_KEY''',
+  '''/* APP_KEY */''',
 
   # Environment variable references
-  '''process\.env\.''',
+  '''process\.env''',
   '''env\(''',
   '''getenv\(''',
 

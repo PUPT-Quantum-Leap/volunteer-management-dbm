@@ -26,7 +26,6 @@ jobs:
         id: filter
         uses: dorny/paths-filter@v3
         with:
-          base: ${{ github.event.repository.default_branch || 'main' }}
           filters: |
             backend:
               - 'vms_db/**'
@@ -39,6 +38,7 @@ jobs:
   dependency-review:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    continue-on-error: true  # Continue if dependency graph is not enabled
     steps:
       - uses: actions/checkout@v4
       - name: Dependency Review
