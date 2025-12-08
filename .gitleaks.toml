@@ -133,7 +133,7 @@ regexes = [
   '''user@example\.com'''
 ]
 
-# Paths to ignore (using glob patterns)
+# Paths to ignore (using simple patterns)
 paths = [
   # Dependencies
   "vendor/",
@@ -160,21 +160,17 @@ paths = [
 
   # Test files
   "tests/",
-  "**/test/",
-  "**/spec/",
 
   # Documentation
   "docs/",
-  "*.md",
 
   # CI/CD
   ".github/workflows/",
   ".circleci/",
-  ".travis.yml",
 
   # Docker
-  "Dockerfile*",
-  "docker-compose*"
+  "Dockerfile",
+  "docker-compose.yml"
 ]
 
 # Commit allowlist - ignore these commits
