@@ -46,7 +46,7 @@
         }
 
         h1 {
-            color: white;
+            color: black;
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 8px;

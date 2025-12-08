@@ -215,7 +215,7 @@
         .card-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #fff;
+            color: black;
         }
 
         .profile-grid {
