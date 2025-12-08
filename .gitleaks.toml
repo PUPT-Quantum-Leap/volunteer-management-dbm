@@ -133,7 +133,7 @@ regexes = [
   '''user@example\.com'''
 ]
 
-# Paths to ignore
+# Paths to ignore (using glob patterns)
 paths = [
   # Dependencies
   "vendor/",
@@ -160,8 +160,8 @@ paths = [
 
   # Test files
   "tests/",
-  "**/test/**",
-  "**/spec/**",
+  "**/test/",
+  "**/spec/",
 
   # Documentation
   "docs/",
