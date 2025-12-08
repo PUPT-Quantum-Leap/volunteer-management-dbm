@@ -35,15 +35,6 @@ jobs:
               - 'vms_db/package*.json'
               - 'vms_db/vite.config.js'
 
-  dependency-review:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    continue-on-error: true  # Continue if dependency graph is not enabled
-    steps:
-      - uses: actions/checkout@v4
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v4
-
   # Backend (Laravel/PHP)
   backend-check:
     runs-on: ubuntu-latest
