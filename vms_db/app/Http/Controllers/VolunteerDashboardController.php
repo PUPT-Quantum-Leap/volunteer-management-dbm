@@ -58,7 +58,8 @@ class VolunteerDashboardController extends Controller
                     'average' => round($records->avg('score')),
                     'count' => $records->count(),
                 ];
-            });
+            })
+            ->toBase(); // Ensure it's a proper Collection
 
         return view('volunteer-dashboard-new', [
             'volunteer' => $volunteer,

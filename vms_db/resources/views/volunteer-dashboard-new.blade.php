@@ -1090,7 +1090,7 @@
                     <h2 class="card-title">Performance Tracking</h2>
                 </div>
 
-                @if ($performanceRecords->count() > 0)
+                @if (count($performanceRecords) > 0)
                     <div class="stats-grid" style="margin-bottom: 2rem;">
                         @foreach ($performanceRecords as $metricName => $data)
                             <div class="stat-card">
