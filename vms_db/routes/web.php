@@ -54,6 +54,9 @@ Route::get('/api/volunteer/{id}/attendance-stats', [AttendancePerformanceControl
 Route::get('/api/volunteer/{id}/performance-summary', [AttendancePerformanceController::class, 'getPerformanceSummary']);
 
 Route::get('/org-chart', [App\Http\Controllers\OrgChartController::class, 'show']);
+Route::get('/auto-assignments', [App\Http\Controllers\AssignmentController::class, 'show']);
+Route::post('/api/assignments/generate', [App\Http\Controllers\AssignmentController::class, 'generate']);
+Route::post('/api/assignments/save', [App\Http\Controllers\AssignmentController::class, 'save']);
 
 // Admin Dashboard Routes
 Route::middleware(['auth'])->prefix('admin')->group(function () {

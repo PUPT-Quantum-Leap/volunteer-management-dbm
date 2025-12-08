@@ -23,7 +23,7 @@ class LoginController extends Controller
 
                 // Redirect based on role
                 if ($user->role === 'admin') {
-                    return redirect('/polls/manage')->with('success', 'Logged in successfully!');
+                    return redirect()->route('admin.dashboard')->with('success', 'Logged in successfully!');
                 }
 
                 // For volunteers, redirect to volunteer dashboard if they have a profile

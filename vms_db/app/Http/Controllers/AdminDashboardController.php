@@ -41,14 +41,18 @@ class AdminDashboardController extends BaseController
         $recentVolunteers = Volunteer::latest()->limit(5)->get();
 
         // Active polls
-        $activePolls = Poll::latest()->limit(5)->get();
+        $activePolls = Poll::with('options')->latest()->limit(5)->get()->map(function ($poll) {
+            $poll->responses_count = $poll->options->sum('votes');
+            return $poll;
+        });
 
         // Performance summary
-        $topPerformers = PerformanceTracking::selectRaw('volunteer_id, AVG(score) as avg_score')
-            ->groupBy('volunteer_id')
-            ->orderByDesc('avg_score')
+        $topPerformers = Volunteer::select('volunteers.id', 'volunteers.first_name', 'volunteers.last_name', 'volunteers.email', 'volunteers.volunteer_area')
+            ->join('performance_tracking', 'volunteers.id', '=', 'performance_tracking.volunteer_id')
+            ->selectRaw('volunteers.id, volunteers.first_name, volunteers.last_name, volunteers.email, volunteers.volunteer_area, AVG(performance_tracking.score) as performance_score')
+            ->groupBy('volunteers.id', 'volunteers.first_name', 'volunteers.last_name', 'volunteers.email', 'volunteers.volunteer_area')
+            ->orderByDesc('performance_score')
             ->limit(5)
-            ->with('volunteer')
             ->get();
 
         return view('admin.dashboard', compact(
