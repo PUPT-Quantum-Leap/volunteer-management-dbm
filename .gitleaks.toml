@@ -1,0 +1,188 @@
+[extend]
+# Use default gitleaks rules as a base
+useDefault = true
+
+# Additional Laravel/React specific rules
+[[rules]]
+id = "laravel-app-key"
+description = "Laravel APP_KEY"
+regex = '''APP_KEY=(?!base64:)[A-Za-z0-9+/]{32,}'''
+tags = ["laravel", "key"]
+
+[[rules]]
+id = "laravel-jwt-secret"
+description = "Laravel JWT secret"
+regex = '''JWT_SECRET=[A-Za-z0-9+/]{32,}'''
+tags = ["laravel", "jwt"]
+
+[[rules]]
+id = "laravel-mail-password"
+description = "Laravel mail password"
+regex = '''MAIL_PASSWORD=[^#\s]+'''
+tags = ["laravel", "mail"]
+
+[[rules]]
+id = "database-password"
+description = "Database password in config"
+regex = '''DB_PASSWORD=[^#\s]+'''
+tags = ["database", "laravel"]
+
+[[rules]]
+id = "stripe-secret-key"
+description = "Stripe secret key"
+regex = '''sk_(test|live)_[A-Za-z0-9]{24,}'''
+tags = ["stripe", "payment"]
+
+[[rules]]
+id = "aws-access-key"
+description = "AWS access key ID"
+regex = '''AKIA[0-9A-Z]{16}'''
+tags = ["aws", "cloud"]
+
+[[rules]]
+id = "google-api-key"
+description = "Google API key"
+regex = '''AIza[0-9A-Za-z-_]{35}'''
+tags = ["google", "api"]
+
+[[rules]]
+id = "slack-webhook"
+description = "Slack webhook URL"
+regex = '''https://hooks\.slack\.com/services/[A-Z0-9]+/[A-Z0-9]+/[A-Za-z0-9]+'''
+tags = ["slack", "webhook"]
+
+# File type configurations
+[files]
+# Scan these file types
+allowlist = [
+  "*.php",
+  "*.js",
+  "*.jsx",
+  "*.ts",
+  "*.tsx",
+  "*.vue",
+  "*.py",
+  "*.java",
+  "*.env*",
+  "*.config.*",
+  "*.json",
+  "*.yml",
+  "*.yaml",
+  "*.toml",
+  "*.xml",
+  "*.md",
+  "Dockerfile*",
+  "docker-compose*",
+  "*.sh",
+  "*.bash",
+  "*.zsh",
+  "Makefile",
+  "*.sql",
+  "*.lock",
+  "composer.json",
+  "package.json",
+  "package-lock.json",
+  "*.gitignore",
+  "README*",
+  "CHANGELOG*",
+  ".env.example",
+  ".env.template"
+]
+
+# Global allowlist - patterns to ignore
+[allowlist]
+description = "Global allowlist"
+regexes = [
+  # Laravel specific false positives
+  '''APP_KEY=base64:''',
+  '''APP_KEY=\$\{.*\}''',
+  '''DB_PASSWORD=\$\{.*\}''',
+  '''MAIL_PASSWORD=\$\{.*\}''',
+  '''JWT_SECRET=\$\{.*\}''',
+
+  # Common test/example values
+  '''password.*123456''',
+  '''password.*password''',
+  '''secret.*secret''',
+  '''key.*key''',
+
+  # Placeholder values
+  '''your-.*-here''',
+  '''replace-.*-with''',
+  '''example.*key''',
+  '''dummy.*value''',
+
+  # Documentation and comments
+  '''# .*APP_KEY.*''',
+  '''// .*APP_KEY.*''',
+  '''/\* .*APP_KEY.* \*/''',
+
+  # Environment variable references
+  '''process\.env\.''',
+  '''env\(''',
+  '''getenv\(''',
+
+  # Common development patterns
+  '''localhost''',
+  '''127\.0\.0\.1''',
+  '''0\.0\.0\.0''',
+
+  # Test data
+  '''test@example\.com''',
+  '''admin@example\.com''',
+  '''user@example\.com'''
+]
+
+# Paths to ignore
+paths = [
+  # Dependencies
+  "vendor/",
+  "node_modules/",
+  ".git/",
+
+  # Laravel specific
+  "storage/logs/",
+  "storage/framework/",
+  "storage/app/",
+  "bootstrap/cache/",
+
+  # Build artifacts
+  "public/build/",
+  "public/hot/",
+  "dist/",
+  "build/",
+
+  # IDE and OS files
+  ".vscode/",
+  ".idea/",
+  ".DS_Store",
+  "Thumbs.db",
+
+  # Test files
+  "tests/",
+  "**/test/**",
+  "**/spec/**",
+
+  # Documentation
+  "docs/",
+  "*.md",
+
+  # CI/CD
+  ".github/workflows/",
+  ".circleci/",
+  ".travis.yml",
+
+  # Docker
+  "Dockerfile*",
+  "docker-compose*"
+]
+
+# Commit allowlist - ignore these commits
+commits = [
+  # Common false positive commits
+  "initial commit",
+  "first commit",
+  "setup project",
+  "add template",
+  "update dependencies"
+]
