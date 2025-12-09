@@ -22,7 +22,7 @@ Route::post('/signup', [SignupController::class, 'store']);
 
 Route::get('/login', function () {
     return view('login');
-});
+})->name('login');
 
 Route::post('/login', [LoginController::class, 'store']);
 

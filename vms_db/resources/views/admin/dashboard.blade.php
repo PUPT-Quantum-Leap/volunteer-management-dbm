@@ -19,10 +19,15 @@
         }
 
         .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
             background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
             color: white;
             padding: 1.5rem 2rem;
             box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+            z-index: 1000;
         }
 
         .header-content {
@@ -44,13 +49,13 @@
         /* Navigation Sidebar */
         .sidebar {
             position: fixed;
-            top: 0;
+            top: 5rem;
             left: 0;
             width: 260px;
-            height: 100vh;
+            height: calc(100vh - 5rem);
             background: #1a2332;
             border-right: 1px solid #2d3e52;
-            padding-top: 5rem;
+            padding-top: 1rem;
             z-index: 100;
             overflow-y: auto;
         }
@@ -293,6 +298,143 @@
             border-color: #ef4444;
         }
 
+        /* Light Mode Styles */
+        .light-mode body {
+            background-color: #f7fafc;
+            color: #0f172a;
+        }
+
+        .light-mode .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
+        }
+
+        .light-mode .sidebar {
+            background: #ffffff;
+            border-right-color: #e2e8f0;
+        }
+
+        .light-mode .nav-item {
+            color: #64748b;
+        }
+
+        .light-mode .nav-item:hover {
+            background-color: #f1f5f9;
+            color: #3b82f6;
+            border-left-color: #3b82f6;
+        }
+
+        .light-mode .nav-item.active {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border-left-color: #3b82f6;
+        }
+
+        .light-mode .stat-card,
+        .light-mode .card {
+            background: #ffffff;
+            border-color: #e2e8f0;
+        }
+
+        .light-mode .stat-icon {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+
+        .light-mode .stat-label {
+            color: #64748b;
+        }
+
+        .light-mode .stat-value,
+        .light-mode .card-title,
+        .light-mode td {
+            color: #0f172a;
+        }
+
+        .light-mode th {
+            color: #64748b;
+            border-bottom-color: #e2e8f0;
+        }
+
+        .light-mode td {
+            border-bottom-color: #e2e8f0;
+        }
+
+        .light-mode tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .light-mode .card-header {
+            border-bottom-color: #e2e8f0;
+        }
+
+        .light-mode .btn-logout {
+            background-color: rgba(15, 23, 42, 0.06);
+            color: #0f172a;
+        }
+
+        .light-mode .btn-logout:hover {
+            background-color: rgba(15, 23, 42, 0.08);
+        }
+
+        .light-mode .btn-primary {
+            background-color: #ff6b35;
+        }
+
+        .light-mode .btn-primary:hover {
+            background-color: #e55a2b;
+        }
+
+        .light-mode .stat-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+        }
+
+        .light-mode .badge-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .light-mode .badge-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .light-mode .badge-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .light-mode .alert-success {
+            background-color: rgba(16, 185, 129, 0.05);
+            color: #059669;
+            border-color: #10b981;
+        }
+
+        .light-mode .alert-error {
+            background-color: rgba(239, 68, 68, 0.05);
+            color: #dc2626;
+            border-color: #ef4444;
+        }
+
+        .light-mode .form-label {
+            color: #0f172a;
+        }
+
+        .light-mode .form-input,
+        .light-mode .form-select,
+        .light-mode .form-textarea {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .light-mode .form-input:focus,
+        .light-mode .form-select:focus,
+        .light-mode .form-textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -474,10 +616,16 @@
                     Admin Dashboard
                 </h1>
             </div>
-            <div>
-                <button class="btn btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button id="theme-toggle" class="btn btn-logout" title="Toggle dark / light mode" aria-label="Toggle theme">
+                    <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
+                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
             </div>
         </div>
     </header>
@@ -1190,6 +1338,46 @@
         // Export Organization Chart
         function exportOrgChart() {
             alert('Organization chart export functionality would be implemented here. This could generate a PDF or image of the chart.');
+        }
+
+        // Theme toggle functionality
+        const THEME_KEY = 'vms_admin_theme';
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-mode');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        }
+
+        // Initialize theme from localStorage (defaults to dark)
+        (function() {
+            try {
+                const saved = localStorage.getItem(THEME_KEY);
+                applyTheme(saved === 'light' ? 'light' : 'dark');
+            } catch (e) {
+                applyTheme('dark');
+            }
+        })();
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                try {
+                    const current = document.documentElement.classList.contains('light-mode') ? 'light' : 'dark';
+                    const next = current === 'light' ? 'dark' : 'light';
+                    localStorage.setItem(THEME_KEY, next);
+                    applyTheme(next);
+                } catch (e) {
+                    // ignore storage errors
+                }
+            });
         }
     </script>
 </body>
