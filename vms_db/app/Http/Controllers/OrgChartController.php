@@ -90,13 +90,14 @@ class OrgChartController extends Controller
             return response()->json([
                 'success' => true,
                 'assignments' => $assignments,
-                'message' => 'Assignments generated successfully'
+                'message' => 'Assignments generated successfully',
             ]);
         } catch (\Exception $e) {
-            Log::error('Assignment generation failed: ' . $e->getMessage());
+            Log::error('Assignment generation failed: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate assignments'
+                'message' => 'Failed to generate assignments',
             ], 500);
         }
     }
@@ -125,7 +126,7 @@ class OrgChartController extends Controller
                 'wash_cleanup' => 'nullable|array',
                 'inventory' => 'nullable|array',
                 'meal_breakdown' => 'nullable|array',
-                'vehicles' => 'nullable|array'
+                'vehicles' => 'nullable|array',
             ]);
 
             // Create new org chart entry
@@ -148,19 +149,20 @@ class OrgChartController extends Controller
                 'wash_cleanup' => json_encode($validated['wash_cleanup'] ?? []),
                 'inventory' => json_encode($validated['inventory'] ?? []),
                 'meal_breakdown' => json_encode($validated['meal_breakdown'] ?? []),
-                'vehicles' => json_encode($validated['vehicles'] ?? [])
+                'vehicles' => json_encode($validated['vehicles'] ?? []),
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Assignments saved successfully',
-                'org_chart_id' => $orgChart->id
+                'org_chart_id' => $orgChart->id,
             ]);
         } catch (\Exception $e) {
-            Log::error('Save assignments failed: ' . $e->getMessage());
+            Log::error('Save assignments failed: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to save assignments'
+                'message' => 'Failed to save assignments',
             ], 500);
         }
     }
@@ -183,7 +185,7 @@ class OrgChartController extends Controller
             'food_prep' => [],
             'volunteer_care' => [],
             'wash_cleanup' => [],
-            'inventory' => []
+            'inventory' => [],
         ];
 
         // Define team structures
@@ -195,7 +197,7 @@ class OrgChartController extends Controller
             'delta1' => ['type' => 'arroP', 'max_members' => 3],
             'delta2' => ['type' => 'EUCATYN', 'max_members' => 4],
             'echo' => ['type' => 'DELPAN', 'max_members' => 4],
-            'foxtrot' => ['type' => 'PAR/SUN', 'max_members' => 4]
+            'foxtrot' => ['type' => 'PAR/SUN', 'max_members' => 4],
         ];
 
         // Initialize teams
@@ -203,7 +205,7 @@ class OrgChartController extends Controller
             $assignments['teams'][$teamKey] = [
                 'type' => $structure['type'],
                 'leader' => '',
-                'members' => []
+                'members' => [],
             ];
         }
 
@@ -240,24 +242,24 @@ class OrgChartController extends Controller
         }
 
         // Assign coordinators from experienced volunteers
-        if (!empty($experienced)) {
+        if (! empty($experienced)) {
             shuffle($experienced);
 
-            $assignments['planning'] = $experienced[0]->first_name . ' ' . $experienced[0]->last_name;
+            $assignments['planning'] = $experienced[0]->first_name.' '.$experienced[0]->last_name;
             array_shift($experienced);
 
-            if (!empty($experienced)) {
-                $assignments['purchasing'] = $experienced[0]->first_name . ' ' . $experienced[0]->last_name;
+            if (! empty($experienced)) {
+                $assignments['purchasing'] = $experienced[0]->first_name.' '.$experienced[0]->last_name;
                 array_shift($experienced);
             }
 
-            if (!empty($experienced)) {
-                $assignments['mwc_coordinator'] = $experienced[0]->first_name . ' ' . $experienced[0]->last_name;
+            if (! empty($experienced)) {
+                $assignments['mwc_coordinator'] = $experienced[0]->first_name.' '.$experienced[0]->last_name;
                 array_shift($experienced);
             }
 
-            if (!empty($experienced)) {
-                $assignments['safety_emergency'] = $experienced[0]->first_name . ' ' . $experienced[0]->last_name;
+            if (! empty($experienced)) {
+                $assignments['safety_emergency'] = $experienced[0]->first_name.' '.$experienced[0]->last_name;
                 array_shift($experienced);
             }
         }
@@ -269,7 +271,7 @@ class OrgChartController extends Controller
         foreach ($teamKeys as $teamKey) {
             if ($leaderIndex < count($leaders)) {
                 $leader = $leaders[$leaderIndex];
-                $assignments['teams'][$teamKey]['leader'] = $leader->first_name . ' ' . $leader->last_name;
+                $assignments['teams'][$teamKey]['leader'] = $leader->first_name.' '.$leader->last_name;
                 $leaderIndex++;
             }
         }
@@ -285,7 +287,7 @@ class OrgChartController extends Controller
 
             for ($i = 0; $i < $maxMembers && $memberIndex < count($allVolunteers); $i++) {
                 $member = $allVolunteers[$memberIndex];
-                $assignments['teams'][$teamKey]['members'][] = $member->first_name . ' ' . $member->last_name;
+                $assignments['teams'][$teamKey]['members'][] = $member->first_name.' '.$member->last_name;
                 $memberIndex++;
             }
         }
@@ -296,7 +298,7 @@ class OrgChartController extends Controller
             'food_prep' => 6,
             'volunteer_care' => 3,
             'wash_cleanup' => 4,
-            'inventory' => 3
+            'inventory' => 3,
         ];
 
         $kitchenIndex = 0;
@@ -304,16 +306,16 @@ class OrgChartController extends Controller
             $assignments[$role] = [];
             for ($i = 0; $i < $count && $kitchenIndex < count($allVolunteers); $i++) {
                 $volunteer = $allVolunteers[$kitchenIndex];
-                $assignments[$role][] = $volunteer->first_name . ' ' . $volunteer->last_name;
+                $assignments[$role][] = $volunteer->first_name.' '.$volunteer->last_name;
                 $kitchenIndex++;
             }
         }
 
         // Assign distribution coordinators
-        if (!empty($experienced)) {
-            $assignments['mobile_kitchen'] = $experienced[0]->first_name . ' ' . $experienced[0]->last_name;
-            $assignments['am_distribution'] = $experienced[1]->first_name . ' ' . $experienced[1]->last_name ?? '';
-            $assignments['pm_distribution'] = $experienced[2]->first_name . ' ' . $experienced[2]->last_name ?? '';
+        if (! empty($experienced)) {
+            $assignments['mobile_kitchen'] = $experienced[0]->first_name.' '.$experienced[0]->last_name;
+            $assignments['am_distribution'] = $experienced[1]->first_name.' '.$experienced[1]->last_name ?? '';
+            $assignments['pm_distribution'] = $experienced[2]->first_name.' '.$experienced[2]->last_name ?? '';
         }
 
         return $assignments;
