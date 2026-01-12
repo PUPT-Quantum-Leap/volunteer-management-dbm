@@ -95,6 +95,7 @@ class AdminDashboardController extends BaseController
     public function volunteersApi()
     {
         $volunteers = Volunteer::orderBy('first_name')->get();
+
         return response()->json($volunteers);
     }
 
@@ -114,7 +115,7 @@ class AdminDashboardController extends BaseController
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:volunteers,email,' . $id,
+            'email' => 'required|string|email|max:255|unique:volunteers,email,'.$id,
             'mobile' => 'nullable|string|max:20',
             'volunteer_area' => 'required|string|max:255',
             'address' => 'nullable|string|max:500',
