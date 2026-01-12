@@ -427,7 +427,7 @@
             <p class="subtitle">Join us and start your journey today</p>
         </div>
 
-        <!-- Social Sign Up -->
+        <!-- Social Sign Up
         <div class="social-buttons">
             <button type="button" class="social-btn">
                 <i class="fab fa-google"></i>
@@ -437,7 +437,7 @@
                 <i class="fab fa-facebook"></i>
                 <span>Continue with Facebook</span>
             </button>
-        </div>
+        </div> -->
 
         <!-- Divider -->
         <div class="divider">
