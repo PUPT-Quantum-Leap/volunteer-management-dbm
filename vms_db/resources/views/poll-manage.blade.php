@@ -231,6 +231,89 @@
             margin-top: 110px;
         }
 
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 110px;
+            height: calc(100vh - 110px);
+            width: 250px;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 0;
+            overflow-y: auto;
+            z-index: 900;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.mobile-hidden {
+            transform: translateX(-100%);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1100;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1877F2 0%, #42A5F5 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(24, 119, 242, 0.4);
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .mobile-menu-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(24, 119, 242, 0.6);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #1877F2 0%, #42A5F5 100%);
+            color: white;
+            border-left-color: #42A5F5;
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            margin-top: 110px;
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
