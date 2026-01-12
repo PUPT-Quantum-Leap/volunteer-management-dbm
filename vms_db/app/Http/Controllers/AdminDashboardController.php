@@ -31,7 +31,7 @@ class AdminDashboardController extends BaseController
     {
         // Dashboard stats
         $stats = [
-            'total_volunteers' => Volunteer::count(),
+            'total_volunteers' => Volunteer::whereNull('deleted_at')->count(),
             'total_users' => User::count(),
             'total_polls' => Poll::count(),
             'total_attendance_records' => Attendance::count(),
@@ -39,10 +39,10 @@ class AdminDashboardController extends BaseController
         ];
 
         // Recent volunteers (for dashboard display)
-        $recentVolunteers = Volunteer::latest()->limit(5)->get();
+        $recentVolunteers = Volunteer::whereNull('deleted_at')->latest()->limit(5)->get();
 
         // All volunteers (for management section)
-        $allVolunteers = Volunteer::orderBy('first_name')->get();
+        $allVolunteers = Volunteer::whereNull('deleted_at')->orderBy('first_name')->get();
 
         // Active polls
         $activePolls = Poll::with('options')->latest()->limit(5)->get()->map(function ($poll) {
@@ -71,7 +71,7 @@ class AdminDashboardController extends BaseController
 
     public function volunteers()
     {
-        $volunteers = Volunteer::paginate(15);
+        $volunteers = Volunteer::whereNull('deleted_at')->paginate(15);
 
         return view('admin.volunteers', compact('volunteers'));
     }
@@ -94,7 +94,7 @@ class AdminDashboardController extends BaseController
 
     public function volunteersApi()
     {
-        $volunteers = Volunteer::orderBy('first_name')->get();
+        $volunteers = Volunteer::whereNull('deleted_at')->orderBy('first_name')->get();
 
         return response()->json($volunteers);
     }
@@ -137,7 +137,7 @@ class AdminDashboardController extends BaseController
     public function attendance()
     {
         $records = Attendance::with('volunteer')->latest()->paginate(20);
-        $volunteers = Volunteer::orderBy('first_name')->get();
+        $volunteers = Volunteer::whereNull('deleted_at')->orderBy('first_name')->get();
 
         return view('admin.attendance', compact('records', 'volunteers'));
     }
@@ -170,7 +170,7 @@ class AdminDashboardController extends BaseController
     public function performance()
     {
         $records = PerformanceTracking::with('volunteer')->latest()->paginate(20);
-        $volunteers = Volunteer::orderBy('first_name')->get();
+        $volunteers = Volunteer::whereNull('deleted_at')->orderBy('first_name')->get();
 
         return view('admin.performance', compact('records', 'volunteers'));
     }
@@ -236,7 +236,7 @@ class AdminDashboardController extends BaseController
 
     private function calculateAverageAttendanceRate()
     {
-        $volunteers = Volunteer::all();
+        $volunteers = Volunteer::whereNull('deleted_at')->get();
         if ($volunteers->isEmpty()) {
             return 0;
         }

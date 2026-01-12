@@ -12,8 +12,8 @@ class VolunteerController extends Controller
     public function store(Request $request)
     {
         try {
-            // Check if user already has a volunteer profile
-            if (Volunteer::where('user_id', Auth::id())->exists()) {
+            // Check if user already has a volunteer profile (excluding soft-deleted records)
+            if (Volunteer::where('user_id', Auth::id())->whereNull('deleted_at')->exists()) {
                 return redirect('/volunteer/'.Auth::user()->volunteer->id.'/dashboard')
                     ->with('info', 'You already have a volunteer profile.');
             }
