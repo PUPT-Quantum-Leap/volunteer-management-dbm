@@ -81,15 +81,19 @@ class AdminDashboardController extends BaseController
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:volunteers,email',
+            'email' => 'required|string|email|max:255|unique:volunteers,email,NULL,id,deleted_at,NULL',
             'mobile' => 'nullable|string|max:20',
             'volunteer_area' => 'required|string|max:255',
             'address' => 'nullable|string|max:500',
         ]);
 
-        Volunteer::create($validated);
+        $volunteer = Volunteer::create($validated);
 
-        return response()->json(['success' => true, 'message' => 'Volunteer created successfully!']);
+        return response()->json([
+            'success' => true, 
+            'message' => 'Volunteer created successfully!',
+            'volunteer' => $volunteer
+        ]);
     }
 
     public function volunteersApi()
@@ -115,7 +119,7 @@ class AdminDashboardController extends BaseController
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:volunteers,email,'.$id,
+            'email' => 'required|string|email|max:255|unique:volunteers,email,'.$id.',id,deleted_at,NULL',
             'mobile' => 'nullable|string|max:20',
             'volunteer_area' => 'required|string|max:255',
             'address' => 'nullable|string|max:500',
