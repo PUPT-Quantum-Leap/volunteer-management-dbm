@@ -283,7 +283,7 @@
                 <a href="#benefits">Benefits</a>
                 <a href="#contact">Contact</a>
                 <a href="/signup">Sign Up</a>
-                <a href="/signup" class="btn-primary">Get Started</a>
+                <a href="/signup" class="btn-primary" style="color: white !important;">Get Started</a>
             </div>
         </div>
     </nav>
