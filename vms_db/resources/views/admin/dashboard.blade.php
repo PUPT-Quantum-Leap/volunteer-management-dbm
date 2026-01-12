@@ -1703,12 +1703,15 @@
             const tbody = document.getElementById('volunteers-tbody');
             tbody.innerHTML = '';
 
-            if (filtered.length === 0) {
+            // Filter out soft-deleted volunteers
+            const activeVolunteers = filtered.filter(v => !v.deleted_at);
+
+            if (activeVolunteers.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No volunteers found.</td></tr>';
                 return;
             }
 
-            filtered.forEach(v => {
+            activeVolunteers.forEach(v => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${v.first_name} ${v.last_name}</td>
@@ -1926,8 +1929,11 @@
                 
                 if (response.ok) {
                     closeDeleteModal();
-                    // Remove from local array and re-render without page reload
-                    volunteers = volunteers.filter(v => v.id !== currentVolunteerId);
+                    // Soft delete: mark as deleted in local array instead of removing
+                    const index = volunteers.findIndex(v => v.id === currentVolunteerId);
+                    if (index !== -1) {
+                        volunteers[index].deleted_at = new Date().toISOString();
+                    }
                     renderVolunteers();
                     updateStats();
                     
@@ -1946,7 +1952,9 @@
         function updateStats() {
             const element = document.getElementById('total-volunteers');
             if (element) {
-                element.textContent = volunteers.length;
+                // Count only active (non-deleted) volunteers
+                const activeCount = volunteers.filter(v => !v.deleted_at).length;
+                element.textContent = activeCount;
             }
         }
 
