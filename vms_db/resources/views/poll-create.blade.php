@@ -74,6 +74,27 @@
             transform: translateY(-1px);
         }
 
+        .btn-back {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -182,17 +203,22 @@
             margin-top: 0.75rem;
             padding: 0.625rem 1rem;
             background-color: transparent;
-            color: #ff6b35;
-            border: 2px solid #ff6b35;
+            color: #1877F2;
+            border: 2px solid #1877F2;
             border-radius: 0.5rem;
             cursor: pointer;
             font-size: 0.875rem;
             font-weight: 500;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .btn-add-option:hover {
-            background-color: rgba(255, 107, 53, 0.1);
+            background-color: rgba(24, 119, 242, 0.1);
+            border-color: #1565C0;
+            transform: translateY(-1px);
         }
 
         .btn-remove {
@@ -208,6 +234,8 @@
 
         .btn-remove:hover {
             background-color: rgba(239, 68, 68, 0.1);
+            border-color: #dc2626;
+            transform: translateY(-1px);
         }
 
         .form-actions {
@@ -221,32 +249,45 @@
         .btn-primary {
             flex: 1;
             padding: 0.875rem 1.5rem;
-            background-color: #ff6b35;
+            background: linear-gradient(135deg, #1877F2 0%, #42A5F5 100%);
             color: white;
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             cursor: pointer;
             font-size: 0.9375rem;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
         }
 
         .btn-primary:hover {
-            background-color: #e55a2b;
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #1565C0 0%, #1976D2 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(24, 119, 242, 0.4);
         }
 
         .btn-secondary {
             padding: 0.875rem 1.5rem;
-            background-color: #3a3a3a;
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
+            background: #e2e8f0;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.75rem;
             cursor: pointer;
             font-size: 0.9375rem;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+            color: #334155;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 116, 139, 0.2);
+        }
             text-align: center;
         }
 
@@ -305,28 +346,35 @@
         }
 
         .light-mode .btn-primary {
-            background-color: #ff6b35;
+            background: linear-gradient(135deg, #1877F2 0%, #42A5F5 100%);
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
         }
 
         .light-mode .btn-primary:hover {
-            background-color: #e55a2b;
+            background: linear-gradient(135deg, #1565C0 0%, #1976D2 100%);
+            box-shadow: 0 8px 25px rgba(24, 119, 242, 0.4);
         }
 
         .light-mode .btn-secondary {
-            background-color: #e2e8f0;
-            color: #0f172a;
+            background: #e2e8f0;
+            color: #475569;
+            border: 1px solid #cbd5e1;
         }
 
         .light-mode .btn-secondary:hover {
-            background-color: #cbd5e1;
+            background: #cbd5e1;
+            color: #334155;
         }
 
         .light-mode .btn-add-option {
-            color: #ff6b35;
-            border-color: #ff6b35;
+            color: #1877F2;
+            border-color: #1877F2;
         }
 
         .light-mode .btn-add-option:hover {
+            background-color: rgba(24, 119, 242, 0.1);
+            border-color: #1565C0;
+        }
             background-color: rgba(255, 107, 53, 0.05);
         }
 
@@ -352,6 +400,17 @@
 
         .light-mode .required {
             color: #ff6b35;
+        }
+
+        .light-mode .btn-back {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .light-mode .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.3);
         }
 
         @media (max-width: 768px) {
@@ -382,6 +441,10 @@
                 <div class="header-subtitle">Add a new poll for volunteers</div>
             </div>
             <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ url('/admin/dashboard#polls') }}" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Polls
+                </a>
                 <button id="theme-toggle" class="btn btn-logout" title="Toggle dark / light mode" aria-label="Toggle theme">
                     <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
