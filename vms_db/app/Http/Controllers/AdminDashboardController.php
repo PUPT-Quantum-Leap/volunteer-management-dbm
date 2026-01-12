@@ -92,6 +92,12 @@ class AdminDashboardController extends BaseController
         return response()->json(['success' => true, 'message' => 'Volunteer created successfully!']);
     }
 
+    public function volunteersApi()
+    {
+        $volunteers = Volunteer::orderBy('first_name')->get();
+        return response()->json($volunteers);
+    }
+
     public function volunteerShow($id)
     {
         $volunteer = Volunteer::findOrFail($id);

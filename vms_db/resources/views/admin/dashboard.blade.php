@@ -1152,7 +1152,7 @@
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="stat-label">Total Volunteers</div>
-                        <div class="stat-value">{{ $stats['total_volunteers'] }}</div>
+                        <div class="stat-value" id="total-volunteers">{{ $stats['total_volunteers'] }}</div>
                     </div>
 
                     <div class="stat-card">
@@ -1660,8 +1660,26 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Reload the page to get fresh data from database
-                    window.location.reload();
+                    // Close modal and update local data
+                    closeModal();
+                    
+                    if (id) {
+                        // Update existing volunteer in local array
+                        const index = volunteers.findIndex(v => v.id === parseInt(id));
+                        if (index !== -1) {
+                            volunteers[index] = { ...volunteers[index], ...volunteer, id: parseInt(id) };
+                        }
+                    } else {
+                        // Add new volunteer to local array
+                        volunteers.push({ ...volunteer, id: Date.now() }); // Temporary ID, will be updated on page reload
+                    }
+                    
+                    renderVolunteers();
+                    
+                    // Delay updateStats to ensure DOM is ready
+                    setTimeout(() => updateStats(), 100);
+                    
+                    alert(result.message);
                 } else {
                     alert('Error: ' + (result.message || 'Failed to save volunteer'));
                 }
@@ -1669,6 +1687,11 @@
                 console.error('Error saving volunteer:', error);
                 alert('Error: Failed to save volunteer. Please try again.');
             }
+        }
+
+        // Edit Volunteer
+        function editVolunteer(id) {
+            openModal('edit', id);
         }
 
         // View Volunteer
@@ -1724,8 +1747,11 @@
                 
                 if (response.ok) {
                     closeDeleteModal();
-                    // Reload the page to get fresh data from database
-                    window.location.reload();
+                    // Remove from local array and re-render without page reload
+                    volunteers = volunteers.filter(v => v.id !== currentVolunteerId);
+                    renderVolunteers();
+                    updateStats();
+                    alert('Volunteer deleted successfully!');
                 } else {
                     alert('Error: ' + (result.message || 'Failed to delete volunteer'));
                 }
@@ -1735,14 +1761,12 @@
             }
         }
 
-        // Edit Volunteer
-        function editVolunteer(id) {
-            openModal('edit', id);
-        }
-
         // Update Stats
         function updateStats() {
-            document.getElementById('total-volunteers').textContent = volunteers.length;
+            const element = document.getElementById('total-volunteers');
+            if (element) {
+                element.textContent = volunteers.length;
+            }
         }
 
         // Search Polls
