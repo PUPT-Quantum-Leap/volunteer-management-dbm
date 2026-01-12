@@ -15,24 +15,40 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #1a1a1a;
-            color: #ffffff;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
+            background: linear-gradient(135deg, #1877F2 0%, #42A5F5 100%);
             color: white;
             padding: 1.5rem 2rem;
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+            box-shadow: 0 4px 20px rgba(24, 119, 242, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            opacity: 0.1;
         }
 
         .header-content {
-            max-width: 800px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            z-index: 1;
         }
 
         .header h1 {
@@ -96,16 +112,71 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem 1rem;
         }
 
-        .card {
-            background: #2a2a2a;
+        .content-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
             border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 2rem;
-            border: 1px solid #3a3a3a;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .content-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 250px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem 0;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #1877F2 0%, #42A5F5 100%);
+            color: white;
+            border-left-color: #42A5F5;
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
         }
 
         .page-title {
@@ -174,8 +245,8 @@
 
         .form-input:focus {
             outline: none;
-            border-color: #ff6b35;
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+            border-color: #1877F2;
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
         }
 
         .form-input::placeholder {
@@ -297,18 +368,26 @@
 
         /* Light Mode Styles */
         .light-mode body {
-            background-color: #f7fafc;
-            color: #0f172a;
+            background: #ffffff;
+            color: #1e293b;
         }
 
         .light-mode .header {
-            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
+            background: linear-gradient(135deg, #1877F2 0%, #42A5F5 100%);
+            color: white;
+            box-shadow: 0 8px 32px rgba(24, 119, 242, 0.3);
         }
 
-        .light-mode .card {
-            background: #ffffff;
-            border-color: #e6e6e6;
+        .light-mode .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-color: rgba(24, 119, 242, 0.1);
+            color: #1e293b;
+            box-shadow: 0 8px 32px rgba(24, 119, 242, 0.08);
+        }
+
+        .light-mode .content-card:hover {
+            box-shadow: 0 20px 60px rgba(24, 119, 242, 0.15);
         }
 
         .light-mode .page-title,
@@ -418,6 +497,14 @@
                 font-size: 1.25rem;
             }
 
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
             .form-actions {
                 flex-direction: column;
             }
@@ -448,13 +535,64 @@
                 <button id="theme-toggle" class="btn btn-logout" title="Toggle dark / light mode" aria-label="Toggle theme">
                     <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
+                <a href="#" class="btn btn-logout" onclick="event.preventDefault(); showLogoutModal();">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+            <form id="logout-form" action="{{ url('/logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+
+            <!-- Logout Confirmation Modal -->
+            <div id="logout-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.7); z-index:9999; align-items:center; justify-content:center;">
+                <div style="background: white; color:#1e293b; border-radius:1.5rem; padding:2rem 2.5rem; box-shadow:0 8px 32px rgba(0,0,0,0.3); max-width:350px; margin:auto; text-align:center;">
+                    <h2 style="margin-bottom:1rem; font-size:1.25rem; font-weight:700;">Confirm Logout</h2>
+                    <p style="margin-bottom:2rem;">Are you sure you want to logout?</p>
+                    <div style="display:flex; gap:1rem; justify-content:center;">
+                        <button type="button" class="btn btn-danger" onclick="hideLogoutModal()">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="confirmLogout()">Logout</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <a href="{{ route('admin.dashboard') }}" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="{{ route('admin.volunteers') }}" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Volunteers</span>
+        </a>
+        <a href="{{ route('admin.attendance') }}" class="nav-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>Attendance</span>
+        </a>
+        <a href="{{ route('admin.performance') }}" class="nav-item">
+            <i class="fas fa-star"></i>
+            <span>Performance</span>
+        </a>
+        <a href="/polls/manage" class="nav-item">
+            <i class="fas fa-poll"></i>
+            <span>Polls</span>
+        </a>
+        <a href="{{ route('admin.org-chart') }}" class="nav-item">
+            <i class="fas fa-sitemap"></i>
+            <span>Organization Chart</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-user-shield"></i>
+            <span>User Management</span>
+        </a>
+    </nav>
+
     <!-- Main Content -->
-    <div class="container">
-        <div class="card">
+    <div class="main-content">
+        <div class="container">
+            <div class="content-card">
 
             <h2 class="page-title">Poll Details</h2>
             <p class="page-subtitle">Fill in the information below to create a new poll</p>
@@ -616,6 +754,18 @@
                     // ignore
                 }
             });
+        }
+    </script>
+
+    <script>
+        function showLogoutModal() {
+            document.getElementById('logout-modal').style.display = 'flex';
+        }
+        function hideLogoutModal() {
+            document.getElementById('logout-modal').style.display = 'none';
+        }
+        function confirmLogout() {
+            document.getElementById('logout-form').submit();
         }
     </script>
 </body>

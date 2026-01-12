@@ -101,6 +101,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // Volunteer Management
     Route::get('/volunteers', [AdminDashboardController::class, 'volunteers'])->name('admin.volunteers');
+    Route::post('/volunteers', [AdminDashboardController::class, 'volunteerStore'])->name('admin.volunteer.store');
+    Route::get('/api/volunteers', [AdminDashboardController::class, 'volunteersApi'])->name('admin.volunteers.api');
     Route::get('/volunteer/{id}', [AdminDashboardController::class, 'volunteerShow'])->name('admin.volunteer.show');
     Route::put('/volunteer/{id}', [AdminDashboardController::class, 'volunteerUpdate'])->name('admin.volunteer.update');
     Route::delete('/volunteer/{id}', [AdminDashboardController::class, 'volunteerDelete'])->name('admin.volunteer.delete');
@@ -116,4 +118,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     // Org Chart Management
     Route::get('/org-chart', [AdminDashboardController::class, 'orgChart'])->name('admin.org-chart');
     Route::post('/org-chart', [AdminDashboardController::class, 'updateOrgChart'])->name('admin.org-chart.update');
+
+    // Poll Management
+    Route::get('/polls', [PollManagementController::class, 'index'])->name('admin.polls');
 });
