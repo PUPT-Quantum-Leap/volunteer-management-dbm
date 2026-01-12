@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\OrgChart;
 
 class OrgChartController extends Controller
@@ -19,7 +18,7 @@ class OrgChartController extends Controller
         ];
 
         // If no data in DB, use defaults or empty
-        if (!$orgData) {
+        if (! $orgData) {
             $orgData = (object) [
                 'objective' => '2400',
                 'menu' => 'Champorado',
@@ -40,7 +39,7 @@ class OrgChartController extends Controller
                     'delta1' => ['type' => 'arroP', 'leader' => 'Cedie', 'members' => ['Lady']],
                     'delta2' => ['type' => 'EUCATYN', 'leader' => 'Michael S', 'members' => ['Karl', 'Aly']],
                     'echo' => ['type' => 'DELPAN', 'leader' => 'John', 'members' => ['Cath', 'Johan']],
-                    'foxtrot' => ['type' => 'PAR/SUN', 'leader' => '', 'members' => []]
+                    'foxtrot' => ['type' => 'PAR/SUN', 'leader' => '', 'members' => []],
                 ],
                 'kitchen_truck' => ['Miah', 'Jones', 'Sam Rice', 'Blessing'],
                 'food_prep' => ['Teresa', 'Cath', 'Natasya', 'Michay', 'Aly', 'Evenmae'],
@@ -56,8 +55,8 @@ class OrgChartController extends Controller
                     ['team' => 'Delta 1', 'vehicle' => 'Hilux'],
                     ['team' => 'Delta 2', 'vehicle' => 'Black'],
                     ['team' => 'Echo', 'vehicle' => 'Chevy'],
-                    ['team' => 'Foxtrot', 'vehicle' => 'Flexi/Clipper']
-                ]
+                    ['team' => 'Foxtrot', 'vehicle' => 'Flexi/Clipper'],
+                ],
             ];
         } else {
             // Decode JSON fields

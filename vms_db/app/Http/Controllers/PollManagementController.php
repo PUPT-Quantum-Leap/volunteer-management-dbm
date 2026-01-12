@@ -44,12 +44,14 @@ class PollManagementController extends Controller
     public function index()
     {
         $polls = Poll::with('options')->get();
+
         return view('poll-manage', ['polls' => $polls]);
     }
 
     public function destroy(Poll $poll)
     {
         $poll->delete();
+
         return redirect('/polls/manage')->with('success', 'Poll deleted successfully!');
     }
 }

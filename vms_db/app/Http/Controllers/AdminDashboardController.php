@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
+use App\Models\OrgChart;
+use App\Models\PerformanceTracking;
+use App\Models\Poll;
 use App\Models\User;
 use App\Models\Volunteer;
-use App\Models\Poll;
-use App\Models\Attendance;
-use App\Models\PerformanceTracking;
-use App\Models\OrgChart;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -19,9 +19,10 @@ class AdminDashboardController extends BaseController
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $user = Auth::user();
-            if (!$user || $user->role !== 'admin') {
+            if (! $user || $user->role !== 'admin') {
                 return redirect('/')->with('error', 'Unauthorized access');
             }
+
             return $next($request);
         });
     }
@@ -43,6 +44,7 @@ class AdminDashboardController extends BaseController
         // Active polls
         $activePolls = Poll::with('options')->latest()->limit(5)->get()->map(function ($poll) {
             $poll->responses_count = $poll->options->sum('votes');
+
             return $poll;
         });
 
@@ -66,6 +68,7 @@ class AdminDashboardController extends BaseController
     public function volunteers()
     {
         $volunteers = Volunteer::paginate(15);
+
         return view('admin.volunteers', compact('volunteers'));
     }
 
@@ -169,6 +172,7 @@ class AdminDashboardController extends BaseController
     public function orgChart()
     {
         $orgChart = OrgChart::latest()->first();
+
         return view('admin.org-chart-editor', compact('orgChart'));
     }
 
@@ -206,7 +210,9 @@ class AdminDashboardController extends BaseController
     private function calculateAverageAttendanceRate()
     {
         $volunteers = Volunteer::all();
-        if ($volunteers->isEmpty()) return 0;
+        if ($volunteers->isEmpty()) {
+            return 0;
+        }
 
         $totalRate = 0;
         foreach ($volunteers as $volunteer) {

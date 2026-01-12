@@ -51,7 +51,7 @@ class AttendancePerformanceController extends Controller
             'evaluated_by' => 'nullable|string|max:255',
         ]);
         $evaluatedBy = $validated['evaluated_by'];
-        if (!$evaluatedBy) {
+        if (! $evaluatedBy) {
             $user = Auth::user();
             $evaluatedBy = $user ? ($user->name ?? 'Admin') : 'Admin';
         }

@@ -2,15 +2,16 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Volunteer;
 use App\Models\Attendance;
 use App\Models\PerformanceTracking;
+use App\Models\Volunteer;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class SeedAttendanceAndPerformance extends Command
 {
     protected $signature = 'seed:attendance-performance';
+
     protected $description = 'Seed sample attendance and performance data for testing';
 
     public function handle()
@@ -19,6 +20,7 @@ class SeedAttendanceAndPerformance extends Command
 
         if ($volunteers->isEmpty()) {
             $this->error('No volunteers found. Please create some volunteers first.');
+
             return;
         }
 

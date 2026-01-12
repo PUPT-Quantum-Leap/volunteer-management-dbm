@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Volunteer;
-use App\Models\Poll;
 use App\Models\Attendance;
 use App\Models\PerformanceTracking;
+use App\Models\Poll;
+use App\Models\Volunteer;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -22,7 +22,7 @@ class VolunteerDashboardController extends Controller
                 'question' => $poll->question,
                 'max_votes' => $poll->max_votes,
                 'total_votes' => $poll->options->sum('votes'),
-                'options' => $poll->options->map(fn($o) => [
+                'options' => $poll->options->map(fn ($o) => [
                     'id' => $o->id,
                     'text' => $o->text,
                     'votes' => $o->votes,

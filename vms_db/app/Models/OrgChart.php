@@ -41,7 +41,7 @@ class OrgChart extends Model
         'communications_team_lead',
         'meeting_frequency',
         'budget_cycle',
-        'notes'
+        'notes',
     ];
 
     protected $casts = [
