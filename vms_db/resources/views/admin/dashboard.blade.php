@@ -1840,8 +1840,10 @@
                             volunteers[index] = { ...volunteers[index], ...volunteer, id: parseInt(id) };
                         }
                     } else {
-                        // Add new volunteer to local array
-                        volunteers.push({ ...volunteer, id: Date.now() }); // Temporary ID, will be updated on page reload
+                        // Add new volunteer to local array using the real ID from server
+                        if (result.volunteer) {
+                            volunteers.push(result.volunteer);
+                        }
                     }
                     
                     renderVolunteers(volunteers);
