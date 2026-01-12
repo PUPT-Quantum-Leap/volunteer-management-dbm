@@ -1500,16 +1500,11 @@
 
         // Load Volunteers
         function loadVolunteers() {
-            const stored = localStorage.getItem('volunteers');
-            if (stored) {
-                volunteers = JSON.parse(stored);
-            } else {
-                volunteers = [
-                    {id: 1, firstName: 'John', lastName: 'Doe', email: 'john@example.com', mobile: '09123456789', area: 'logistics', address: '123 Main St', status: 'active'},
-                    {id: 2, firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com', mobile: '09187654321', area: 'media', address: '456 Oak Ave', status: 'active'},
-                    {id: 3, firstName: 'Mike', lastName: 'Johnson', email: 'mike@example.com', mobile: '09156789012', area: 'finance', address: '789 Pine Rd', status: 'active'}
-                ];
-            }
+            const tbody = document.getElementById('volunteers-tbody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading volunteers...</td></tr>';
+            
+            // Use real database data passed from Laravel
+            volunteers = @json($allVolunteers);
             renderVolunteers();
             updateStats();
         }
@@ -1519,14 +1514,19 @@
             const tbody = document.getElementById('volunteers-tbody');
             tbody.innerHTML = '';
 
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No volunteers found.</td></tr>';
+                return;
+            }
+
             filtered.forEach(v => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${v.firstName} ${v.lastName}</td>
+                    <td>${v.first_name} ${v.last_name}</td>
                     <td>${v.email}</td>
-                    <td>${v.area.charAt(0).toUpperCase() + v.area.slice(1)}</td>
-                    <td>${v.mobile}</td>
-                    <td><span class="badge badge-success">${v.status}</span></td>
+                    <td>${v.volunteer_area ? v.volunteer_area.charAt(0).toUpperCase() + v.volunteer_area.slice(1) : 'N/A'}</td>
+                    <td>${v.mobile || 'N/A'}</td>
+                    <td><span class="badge badge-success">Active</span></td>
                     <td>
                         <div class="action-links">
                             <button class="action-btn action-btn-view" onclick="viewVolunteer(${v.id})">
@@ -1551,10 +1551,10 @@
             const areaFilter = document.getElementById('area-filter').value;
             
             let filtered = volunteers.filter(v => {
-                const matchesSearch = v.firstName.toLowerCase().includes(searchTerm) || 
-                                    v.lastName.toLowerCase().includes(searchTerm) ||
+                const matchesSearch = v.first_name.toLowerCase().includes(searchTerm) || 
+                                    v.last_name.toLowerCase().includes(searchTerm) ||
                                     v.email.toLowerCase().includes(searchTerm);
-                const matchesArea = !areaFilter || v.area === areaFilter;
+                const matchesArea = !areaFilter || v.volunteer_area === areaFilter;
                 return matchesSearch && matchesArea;
             });
             
@@ -1580,11 +1580,11 @@
                 if (volunteer) {
                     title.textContent = 'Edit Volunteer';
                     document.getElementById('volunteer-id').value = volunteer.id;
-                    document.getElementById('first-name').value = volunteer.firstName;
-                    document.getElementById('last-name').value = volunteer.lastName;
+                    document.getElementById('first-name').value = volunteer.first_name;
+                    document.getElementById('last-name').value = volunteer.last_name;
                     document.getElementById('email').value = volunteer.email;
                     document.getElementById('mobile').value = volunteer.mobile;
-                    document.getElementById('volunteer-area').value = volunteer.area;
+                    document.getElementById('volunteer-area').value = volunteer.volunteer_area;
                     document.getElementById('address').value = volunteer.address || '';
                 }
             }
@@ -1604,11 +1604,11 @@
             const id = document.getElementById('volunteer-id').value;
             const volunteer = {
                 id: id ? parseInt(id) : Date.now(),
-                firstName: document.getElementById('first-name').value,
-                lastName: document.getElementById('last-name').value,
+                first_name: document.getElementById('first-name').value,
+                last_name: document.getElementById('last-name').value,
                 email: document.getElementById('email').value,
                 mobile: document.getElementById('mobile').value,
-                area: document.getElementById('volunteer-area').value,
+                volunteer_area: document.getElementById('volunteer-area').value,
                 address: document.getElementById('address').value,
                 status: 'active'
             };
@@ -1633,12 +1633,12 @@
                 const content = document.getElementById('view-content');
                 content.innerHTML = `
                     <div style="display: grid; gap: 1rem;">
-                        <div><strong>Name:</strong> ${volunteer.firstName} ${volunteer.lastName}</div>
+                        <div><strong>Name:</strong> ${volunteer.first_name} ${volunteer.last_name}</div>
                         <div><strong>Email:</strong> ${volunteer.email}</div>
-                        <div><strong>Mobile:</strong> ${volunteer.mobile}</div>
-                        <div><strong>Area:</strong> ${volunteer.area.charAt(0).toUpperCase() + volunteer.area.slice(1)}</div>
+                        <div><strong>Mobile:</strong> ${volunteer.mobile || 'N/A'}</div>
+                        <div><strong>Area:</strong> ${volunteer.volunteer_area ? volunteer.volunteer_area.charAt(0).toUpperCase() + volunteer.volunteer_area.slice(1) : 'N/A'}</div>
                         <div><strong>Address:</strong> ${volunteer.address || 'N/A'}</div>
-                        <div><strong>Status:</strong> <span class="badge badge-success">${volunteer.status}</span></div>
+                        <div><strong>Status:</strong> <span class="badge badge-success">Active</span></div>
                     </div>
                 `;
                 document.getElementById('view-modal').classList.add('active');
