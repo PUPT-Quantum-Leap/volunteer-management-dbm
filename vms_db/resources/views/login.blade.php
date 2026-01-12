@@ -301,7 +301,7 @@
                 <button type="submit" class="submit-btn">Sign In</button>
             </form>
 
-            <div class="divider">
+            <!-- <div class="divider">
                 <span>Or continue with</span>
             </div>
 
@@ -321,7 +321,7 @@
                     </svg>
                     Facebook
                 </button>
-            </div>
+            </div> -->
 
             <div class="signup-link">
                 Don't have an account? <a href="{{ url('/signup') }}">Sign up</a>

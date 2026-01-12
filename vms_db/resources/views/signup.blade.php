@@ -273,24 +273,22 @@
             <p class="subtitle">Join us and start your journey today</p>
         </div>
 
-        <div class="form-card">
-            <form id="signupForm" method="POST" action="{{ url('/signup') }}">
-                @csrf
+        <!-- Social Sign Up
+        <div class="social-buttons">
+            <button type="button" class="social-btn">
+                <i class="fab fa-google"></i>
+                <span>Continue with Google</span>
+            </button>
+            <button type="button" class="social-btn facebook">
+                <i class="fab fa-facebook"></i>
+                <span>Continue with Facebook</span>
+            </button>
+        </div> -->
 
-                <div class="form-group">
-                    <label for="role">I am a *</label>
-                    <div class="input-wrapper">
-                        <select
-                            id="role"
-                            name="role"
-                            required
-                        >
-                            <option value="">Select your role</option>
-                            <option value="volunteer">Volunteer</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                </div>
+        <!-- Divider 
+        <div class="divider">
+            <span>Or sign up with email</span>
+        </div> -->
 
                 <div class="form-group">
                     <label for="fullname">Full Name *</label>
@@ -372,9 +370,18 @@
                 <button type="submit" class="submit-btn">Create Account</button>
             </form>
 
-            <div class="divider">
-                <span>Or continue with</span>
-            </div>
+            <!-- Submit Button -->
+            <button type="submit" class="submit-btn">
+                <span>Create Account</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <!-- Sign In Link -->
+        <div class="signin-link">
+            <span>Already have an account?</span>
+            <a href="{{ url('/login') }}">Sign in</a>
+        </div>
 
             <div class="social-buttons">
                 <button class="social-btn">
