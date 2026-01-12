@@ -1498,6 +1498,29 @@
         </div>
     </div>
 
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Success</h2>
+                <button class="close-btn" onclick="closeSuccessModal()">&times;</button>
+            </div>
+            <div style="padding: 1.5rem; text-align: center;">
+                <div style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <p id="success-message" style="font-size: 1.1rem; color: #f1f5f9; margin: 0;">
+                    Operation completed successfully!
+                </p>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                <button type="button" class="btn btn-primary" onclick="closeSuccessModal()">
+                    <i class="fas fa-check"></i> OK
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let volunteers = [];
         let currentVolunteerId = null;
@@ -1679,7 +1702,8 @@
                     // Delay updateStats to ensure DOM is ready
                     setTimeout(() => updateStats(), 100);
                     
-                    alert(result.message);
+                    // Show success modal
+                    showSuccessModal(result.message);
                 } else {
                     alert('Error: ' + (result.message || 'Failed to save volunteer'));
                 }
@@ -1730,6 +1754,17 @@
             currentVolunteerId = null;
         }
 
+        // Close Success Modal
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.remove('active');
+        }
+
+        // Show Success Modal
+        function showSuccessModal(message) {
+            document.getElementById('success-message').textContent = message;
+            document.getElementById('success-modal').classList.add('active');
+        }
+
         // Confirm Delete
         async function confirmDelete() {
             if (!currentVolunteerId) return;
@@ -1751,7 +1786,9 @@
                     volunteers = volunteers.filter(v => v.id !== currentVolunteerId);
                     renderVolunteers();
                     updateStats();
-                    alert('Volunteer deleted successfully!');
+                    
+                    // Show success modal
+                    showSuccessModal('Volunteer deleted successfully!');
                 } else {
                     alert('Error: ' + (result.message || 'Failed to delete volunteer'));
                 }
