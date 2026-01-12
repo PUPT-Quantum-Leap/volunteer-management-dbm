@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\OrgChart;
+use Illuminate\Database\Seeder;
 
 class OrgChartSeeder extends Seeder
 {
@@ -33,7 +32,7 @@ class OrgChartSeeder extends Seeder
                 'delta1' => ['type' => 'arroP', 'leader' => 'Cedie', 'members' => ['Lady']],
                 'delta2' => ['type' => 'EUCATYN', 'leader' => 'Michael S', 'members' => ['Karl', 'Aly']],
                 'echo' => ['type' => 'DELPAN', 'leader' => 'John', 'members' => ['Cath', 'Johan']],
-                'foxtrot' => ['type' => 'PAR/SUN', 'leader' => '', 'members' => []]
+                'foxtrot' => ['type' => 'PAR/SUN', 'leader' => '', 'members' => []],
             ]),
             'kitchen_truck' => json_encode(['Miah', 'Jones', 'Sam Rice', 'Blessing']),
             'food_prep' => json_encode(['Teresa', 'Cath', 'Natasya', 'Michay', 'Aly', 'Evenmae']),
@@ -49,8 +48,8 @@ class OrgChartSeeder extends Seeder
                 ['team' => 'Delta 1', 'vehicle' => 'Hilux'],
                 ['team' => 'Delta 2', 'vehicle' => 'Black'],
                 ['team' => 'Echo', 'vehicle' => 'Chevy'],
-                ['team' => 'Foxtrot', 'vehicle' => 'Flexi/Clipper']
-            ])
+                ['team' => 'Foxtrot', 'vehicle' => 'Flexi/Clipper'],
+            ]),
         ]);
     }
 }

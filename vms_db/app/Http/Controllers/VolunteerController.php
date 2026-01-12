@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Volunteer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class VolunteerController extends Controller
@@ -11,6 +12,12 @@ class VolunteerController extends Controller
     public function store(Request $request)
     {
         try {
+            // Check if user already has a volunteer profile
+            if (Volunteer::where('user_id', Auth::id())->exists()) {
+                return redirect('/volunteer/'.Auth::user()->volunteer->id.'/dashboard')
+                    ->with('info', 'You already have a volunteer profile.');
+            }
+
             $validated = $request->validate([
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
@@ -34,6 +41,7 @@ class VolunteerController extends Controller
 
             // Convert availability array to string for storage
             $validated['availability'] = implode(', ', $validated['availability']);
+            $validated['user_id'] = Auth::id();
 
             // Save to database
             $volunteer = Volunteer::create($validated);
