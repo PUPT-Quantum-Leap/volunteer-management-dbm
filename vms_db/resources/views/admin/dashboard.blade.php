@@ -1844,7 +1844,7 @@
                         volunteers.push({ ...volunteer, id: Date.now() }); // Temporary ID, will be updated on page reload
                     }
                     
-                    renderVolunteers();
+                    renderVolunteers(volunteers);
                     
                     // Delay updateStats to ensure DOM is ready
                     setTimeout(() => updateStats(), 100);
@@ -1934,7 +1934,7 @@
                     if (index !== -1) {
                         volunteers[index].deleted_at = new Date().toISOString();
                     }
-                    renderVolunteers();
+                    renderVolunteers(volunteers);
                     updateStats();
                     
                     // Show success modal
