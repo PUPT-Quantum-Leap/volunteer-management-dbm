@@ -439,10 +439,10 @@
             </button>
         </div> -->
 
-        <!-- Divider -->
+        <!-- Divider 
         <div class="divider">
             <span>Or sign up with email</span>
-        </div>
+        </div> -->
 
         <!-- Sign Up Form -->
         <form method="POST" action="{{ url('/signup') }}">
