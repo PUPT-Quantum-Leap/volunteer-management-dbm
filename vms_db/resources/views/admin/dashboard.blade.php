@@ -622,13 +622,35 @@
                 </button>
                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                     @csrf
-                    <button type="submit" class="btn btn-logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
                 </form>
+                <button type="button" class="btn btn-logout" onclick="showLogoutModal()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+                <!-- Logout Confirmation Modal -->
+                <div id="logout-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.7); z-index:9999; align-items:center; justify-content:center;">
+                    <div style="background: white; color:#1e293b; border-radius:1.5rem; padding:2rem 2.5rem; box-shadow:0 8px 32px rgba(0,0,0,0.3); max-width:350px; margin:auto; text-align:center;">
+                        <h2 style="margin-bottom:1rem; font-size:1.25rem; font-weight:700;">Confirm Logout</h2>
+                        <p style="margin-bottom:2rem;">Are you sure you want to logout?</p>
+                        <div style="display:flex; gap:1rem; justify-content:center;">
+                            <button type="button" class="btn btn-danger" onclick="hideLogoutModal()">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="confirmLogout()">Logout</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
+    <script>
+        function showLogoutModal() {
+            document.getElementById('logout-modal').style.display = 'flex';
+        }
+        function hideLogoutModal() {
+            document.getElementById('logout-modal').style.display = 'none';
+        }
+        function confirmLogout() {
+            document.querySelector('form[action="{{ route('logout') }}"]').submit();
+        }
+    </script>
 
     <!-- Sidebar Navigation -->
     <nav class="sidebar">
