@@ -102,6 +102,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     // Volunteer Management
     Route::get('/volunteers', [AdminDashboardController::class, 'volunteers'])->name('admin.volunteers');
     Route::post('/volunteers', [AdminDashboardController::class, 'volunteerStore'])->name('admin.volunteer.store');
+    Route::get('/api/volunteers', [AdminDashboardController::class, 'volunteersApi'])->name('admin.volunteers.api');
     Route::get('/volunteer/{id}', [AdminDashboardController::class, 'volunteerShow'])->name('admin.volunteer.show');
     Route::put('/volunteer/{id}', [AdminDashboardController::class, 'volunteerUpdate'])->name('admin.volunteer.update');
     Route::delete('/volunteer/{id}', [AdminDashboardController::class, 'volunteerDelete'])->name('admin.volunteer.delete');
