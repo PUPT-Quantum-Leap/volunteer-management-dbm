@@ -76,6 +76,22 @@ class AdminDashboardController extends BaseController
         return view('admin.volunteers', compact('volunteers'));
     }
 
+    public function volunteerStore(Request $request)
+    {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:volunteers,email',
+            'mobile' => 'nullable|string|max:20',
+            'volunteer_area' => 'required|string|max:255',
+            'address' => 'nullable|string|max:500',
+        ]);
+
+        Volunteer::create($validated);
+
+        return response()->json(['success' => true, 'message' => 'Volunteer created successfully!']);
+    }
+
     public function volunteerShow($id)
     {
         $volunteer = Volunteer::findOrFail($id);
@@ -92,15 +108,15 @@ class AdminDashboardController extends BaseController
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'mobile' => 'required|string|max:20',
+            'email' => 'required|string|email|max:255|unique:volunteers,email,' . $id,
+            'mobile' => 'nullable|string|max:20',
             'volunteer_area' => 'required|string|max:255',
-            'status' => 'nullable|string|max:50',
+            'address' => 'nullable|string|max:500',
         ]);
 
         $volunteer->update($validated);
 
-        return back()->with('success', 'Volunteer updated successfully!');
+        return response()->json(['success' => true, 'message' => 'Volunteer updated successfully!']);
     }
 
     public function volunteerDelete($id)
@@ -108,7 +124,7 @@ class AdminDashboardController extends BaseController
         $volunteer = Volunteer::findOrFail($id);
         $volunteer->delete();
 
-        return redirect('/admin/volunteers')->with('success', 'Volunteer deleted successfully!');
+        return response()->json(['success' => true, 'message' => 'Volunteer deleted successfully!']);
     }
 
     public function attendance()

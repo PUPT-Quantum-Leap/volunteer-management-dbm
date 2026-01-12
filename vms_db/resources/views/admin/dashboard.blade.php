@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1598,32 +1599,55 @@
         }
 
         // Save Volunteer
-        function saveVolunteer(e) {
+        async function saveVolunteer(e) {
             e.preventDefault();
             
             const id = document.getElementById('volunteer-id').value;
             const volunteer = {
-                id: id ? parseInt(id) : Date.now(),
                 first_name: document.getElementById('first-name').value,
                 last_name: document.getElementById('last-name').value,
                 email: document.getElementById('email').value,
                 mobile: document.getElementById('mobile').value,
                 volunteer_area: document.getElementById('volunteer-area').value,
-                address: document.getElementById('address').value,
-                status: 'active'
+                address: document.getElementById('address').value
             };
 
-            if (id) {
-                const index = volunteers.findIndex(v => v.id === parseInt(id));
-                volunteers[index] = volunteer;
-            } else {
-                volunteers.push(volunteer);
-            }
+            try {
+                let response;
+                if (id) {
+                    // Update existing volunteer
+                    response = await fetch(`/admin/volunteer/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(volunteer)
+                    });
+                } else {
+                    // Create new volunteer
+                    response = await fetch('/admin/volunteers', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(volunteer)
+                    });
+                }
 
-            localStorage.setItem('volunteers', JSON.stringify(volunteers));
-            renderVolunteers();
-            updateStats();
-            closeModal();
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Reload the page to get fresh data from database
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to save volunteer'));
+                }
+            } catch (error) {
+                console.error('Error saving volunteer:', error);
+                alert('Error: Failed to save volunteer. Please try again.');
+            }
         }
 
         // View Volunteer
@@ -1656,12 +1680,29 @@
         }
 
         // Delete Volunteer
-        function deleteVolunteer(id) {
+        async function deleteVolunteer(id) {
             if (confirm('Are you sure you want to delete this volunteer?')) {
-                volunteers = volunteers.filter(v => v.id !== id);
-                localStorage.setItem('volunteers', JSON.stringify(volunteers));
-                renderVolunteers();
-                updateStats();
+                try {
+                    const response = await fetch(`/admin/volunteer/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        // Reload the page to get fresh data from database
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + (result.message || 'Failed to delete volunteer'));
+                    }
+                } catch (error) {
+                    console.error('Error deleting volunteer:', error);
+                    alert('Error: Failed to delete volunteer. Please try again.');
+                }
             }
         }
 
