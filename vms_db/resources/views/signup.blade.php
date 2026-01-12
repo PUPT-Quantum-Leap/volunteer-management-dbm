@@ -565,7 +565,7 @@
         <!-- Sign In Link -->
         <div class="signin-link">
             <span>Already have an account?</span>
-            <a href="#">Sign in</a>
+            <a href="{{ url('/login') }}">Sign in</a>
         </div>
 
         <!-- Footer -->
