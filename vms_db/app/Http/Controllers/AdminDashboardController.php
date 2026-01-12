@@ -38,8 +38,11 @@ class AdminDashboardController extends BaseController
             'average_attendance_rate' => $this->calculateAverageAttendanceRate(),
         ];
 
-        // Recent volunteers
+        // Recent volunteers (for dashboard display)
         $recentVolunteers = Volunteer::latest()->limit(5)->get();
+
+        // All volunteers (for management section)
+        $allVolunteers = Volunteer::orderBy('first_name')->get();
 
         // Active polls
         $activePolls = Poll::with('options')->latest()->limit(5)->get()->map(function ($poll) {
@@ -60,6 +63,7 @@ class AdminDashboardController extends BaseController
         return view('admin.dashboard', compact(
             'stats',
             'recentVolunteers',
+            'allVolunteers',
             'activePolls',
             'topPerformers'
         ));
