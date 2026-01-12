@@ -372,7 +372,7 @@
                 <button type="submit" class="submit-btn">Create Account</button>
             </form>
 
-            <div class="divider">
+            <!-- <div class="divider">
                 <span>Or continue with</span>
             </div>
 
@@ -392,7 +392,7 @@
                     </svg>
                     Facebook
                 </button>
-            </div>
+            </div> -->
 
             <div class="signup-link">
                 Already have an account? <a href="{{ url('/login') }}">Sign in</a>

@@ -28,11 +28,13 @@ Route::post('/login', [LoginController::class, 'store']);
 
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
-Route::get('/volunteer-form', function () {
-    return view('volunteer-form');
-});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/volunteer-form', function () {
+        return view('volunteer-form');
+    });
 
-Route::post('/volunteer-register', [VolunteerController::class, 'store']);
+    Route::post('/volunteer-register', [VolunteerController::class, 'store']);
+});
  
 Route::get('/volunteer/{id}/dashboard', [VolunteerDashboardController::class, 'show'])->name('volunteer.dashboard');
 Route::put('/volunteer/{id}/update', [VolunteerDashboardController::class, 'update'])->name('volunteer.update');
