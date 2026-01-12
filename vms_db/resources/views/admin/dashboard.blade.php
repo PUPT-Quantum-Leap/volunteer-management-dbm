@@ -1521,7 +1521,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Mobile</label>
-                        <input type="tel" class="form-input" id="mobile" required>
+                        <input type="tel" class="form-input" id="mobile">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Volunteer Area</label>
