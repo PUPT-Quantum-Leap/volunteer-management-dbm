@@ -14,13 +14,13 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f5f5f0;
+            background-color: #f8fafc;
             min-height: 100vh;
             padding: 40px 20px;
         }
 
         .form-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -31,27 +31,25 @@
 
         .logo {
             display: inline-block;
-            background-color: #ff6b35;
-            padding: 16px;
-            border-radius: 16px;
             margin-bottom: 20px;
         }
 
-        .logo svg {
-            width: 32px;
-            height: 32px;
-            color: white;
+        .logo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(24, 119, 242, 0.2);
         }
 
         h1 {
-            color: #111827;
+            color: #1e293b;
             font-size: 32px;
             font-weight: 700;
             margin-bottom: 8px;
         }
 
         .subtitle {
-            color: #6b7280;
+            color: #64748b;
             font-size: 16px;
         }
 
@@ -59,27 +57,39 @@
             background-color: white;
             border-radius: 16px;
             padding: 40px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(24, 119, 242, 0.05);
+            border: 1px solid #e2e8f0;
         }
 
         .section-title {
             font-size: 20px;
             font-weight: 600;
-            color: #111827;
+            color: #1e293b;
             margin-bottom: 24px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #ff6b35;
+            border-bottom: 2px solid #1877F2;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, #1877F2, #3b82f6);
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 24px;
+            margin-bottom: 24px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-group.full-width {
@@ -95,7 +105,22 @@
         }
 
         label .required {
-            color: #ff6b35;
+            color: #ef4444;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #9ca3af;
+            pointer-events: none;
         }
 
         input[type="text"],
@@ -105,30 +130,42 @@
         select,
         textarea {
             width: 100%;
-            padding: 12px;
+            padding: 12px 16px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             font-size: 14px;
             transition: all 0.2s;
             outline: none;
             font-family: inherit;
+            background-color: #ffffff;
         }
 
-        input:focus,
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="date"]:focus,
+        input[type="tel"]:focus,
         select:focus,
         textarea:focus {
-            border-color: #ff6b35;
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+            border-color: #1877F2;
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+            background-color: #fefeff;
         }
 
         textarea {
             resize: vertical;
             min-height: 100px;
+            padding: 12px 16px;
         }
 
         select {
             cursor: pointer;
             background-color: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
         }
 
         .radio-group,
@@ -142,15 +179,23 @@
         .checkbox-option {
             display: flex;
             align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .radio-option:hover,
+        .checkbox-option:hover {
+            background-color: #f1f5f9;
         }
 
         input[type="radio"],
         input[type="checkbox"] {
             width: 18px;
             height: 18px;
-            margin-right: 10px;
+            margin-right: 12px;
             cursor: pointer;
-            accent-color: #ff6b35;
+            accent-color: #1877F2;
         }
 
         .radio-option label,
@@ -158,47 +203,63 @@
             margin: 0;
             cursor: pointer;
             font-weight: 400;
+            color: #374151;
         }
 
         .emergency-contact {
-            background-color: #fef2f2;
+            background: linear-gradient(135deg, #fef2f2 0%, #fef3f3 100%);
             border: 1px solid #fecaca;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .emergency-contact::before {
+            content: '⚠️';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .emergency-contact .section-title {
-            color: #991b1b;
+            color: #dc2626;
             border-bottom-color: #ef4444;
             font-size: 18px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            padding-left: 20px;
         }
 
         .submit-section {
-            margin-top: 32px;
+            margin-top: 40px;
             padding-top: 32px;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
         }
 
         .submit-btn {
             width: 100%;
-            padding: 16px;
-            background-color: #ff6b35;
+            max-width: 300px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #1877F2 0%, #3b82f6 100%);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(255, 107, 53, 0.3);
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
         }
 
         .submit-btn:hover {
-            background-color: #e55a2b;
+            background: linear-gradient(135deg, #166fe5 0%, #2563eb 100%);
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(255, 107, 53, 0.4);
+            box-shadow: 0 10px 25px rgba(24, 119, 242, 0.4);
         }
 
         .submit-btn:active {
@@ -208,21 +269,54 @@
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
+                gap: 20px;
             }
 
             .form-card {
                 padding: 24px;
+                margin: 0 10px;
             }
 
             h1 {
-                font-size: 24px;
+                font-size: 28px;
+            }
+
+            .section-title {
+                font-size: 18px;
             }
         }
 
         .helper-text {
             font-size: 12px;
-            color: #6b7280;
+            color: #64748b;
             margin-top: 4px;
+        }
+
+        /* Progress indicator */
+        .progress-container {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background-color: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1877F2, #3b82f6);
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #64748b;
         }
     </style>
 </head>
@@ -230,9 +324,7 @@
     <div class="form-container">
         <div class="header">
             <div class="logo">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                </svg>
+                <img src="{{ asset('assets/nlcomlogo.jpg') }}" alt="NLCom Logo">
             </div>
             <h1>Volunteer Registration</h1>
             <p class="subtitle">Join our community and make a difference</p>

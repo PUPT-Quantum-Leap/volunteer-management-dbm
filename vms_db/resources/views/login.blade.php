@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f5f5f0;
+            background-color: white;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -33,16 +33,13 @@
 
         .logo {
             display: inline-block;
-            background-color: #ff6b35;
-            padding: 16px;
-            border-radius: 16px;
             margin-bottom: 20px;
         }
 
-        .logo svg {
-            width: 32px;
-            height: 32px;
-            color: white;
+        .logo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
         }
 
         h1 {
@@ -103,8 +100,8 @@
         }
 
         input:focus {
-            border-color: #ff6b35;
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+            border-color: #1877F2;
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
         }
 
         .toggle-password {
@@ -140,7 +137,7 @@
             height: 16px;
             margin-right: 8px;
             cursor: pointer;
-            accent-color: #ff6b35;
+            accent-color: #1877F2;
         }
 
         .checkbox-wrapper label {
@@ -151,20 +148,20 @@
         }
 
         .forgot-link {
-            color: #ff6b35;
+            color: #1877F2;
             text-decoration: none;
             font-size: 14px;
             font-weight: 500;
         }
 
         .forgot-link:hover {
-            color: #e55a2b;
+            color: #166fe5;
         }
 
         .submit-btn {
             width: 100%;
             padding: 14px;
-            background-color: #ff6b35;
+            background-color: #1877F2;
             color: white;
             border: none;
             border-radius: 8px;
@@ -172,13 +169,13 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(255, 107, 53, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(24, 119, 242, 0.3);
         }
 
         .submit-btn:hover {
-            background-color: #e55a2b;
+            background-color: #166fe5;
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(255, 107, 53, 0.4);
+            box-shadow: 0 10px 15px -3px rgba(24, 119, 242, 0.4);
         }
 
         .submit-btn:active {
@@ -244,13 +241,13 @@
         }
 
         .signup-link a {
-            color: #ff6b35;
+            color: #1877F2;
             text-decoration: none;
             font-weight: 500;
         }
 
         .signup-link a:hover {
-            color: #e55a2b;
+            color: #166fe5;
         }
     </style>
 </head>
@@ -258,9 +255,7 @@
     <div class="login-container">
         <div class="logo-section">
             <div class="logo">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                </svg>
+                <img src="{{ asset('assets/nlcomlogo.jpg') }}" alt="NLCom Logo">
             </div>
             <h1>Welcome Back</h1>
             <p class="subtitle">Please sign in to your account</p>
