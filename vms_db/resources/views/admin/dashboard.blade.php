@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -857,7 +858,7 @@
 
         /* Light mode overrides - Facebook Blue Theme */
         .light-mode body {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background: #ffffff;
             color: #1e293b;
         }
 
@@ -1110,31 +1111,31 @@
 
     <!-- Sidebar Navigation -->
     <nav class="sidebar">
-        <a href="#" class="nav-item active" onclick="showPage('dashboard')">
+        <a href="{{ route('admin.dashboard') }}" class="nav-item active">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>
-        <a href="#" class="nav-item" onclick="showPage('volunteers')">
+        <a href="{{ route('admin.volunteers') }}" class="nav-item">
             <i class="fas fa-users"></i>
             <span>Volunteers</span>
         </a>
-        <a href="#" class="nav-item" onclick="showPage('attendance')">
+        <a href="{{ route('admin.attendance') }}" class="nav-item">
             <i class="fas fa-calendar-check"></i>
             <span>Attendance</span>
         </a>
-        <a href="#" class="nav-item" onclick="showPage('performance')">
+        <a href="{{ route('admin.performance') }}" class="nav-item">
             <i class="fas fa-star"></i>
             <span>Performance</span>
         </a>
-        <a href="#" class="nav-item" onclick="showPage('polls')">
+        <a href="/polls/manage" class="nav-item">
             <i class="fas fa-poll"></i>
             <span>Polls</span>
         </a>
-        <a href="/org-chart" class="nav-item">
+        <a href="{{ route('admin.org-chart') }}" class="nav-item">
             <i class="fas fa-sitemap"></i>
             <span>Organization Chart</span>
         </a>
-        <a href="#" class="nav-item" onclick="showPage('users')">
+        <a href="#" class="nav-item">
             <i class="fas fa-user-shield"></i>
             <span>User Management</span>
         </a>
@@ -1374,20 +1375,7 @@
                 </div>
             </div>
 
-            <!-- Org Chart Page -->
-            <div id="orgchart-page" class="page page-hidden">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Organization Chart</h2>
-                        <button class="btn btn-primary" onclick="generateOrgChart()">
-                            <i class="fas fa-sync"></i> Generate Chart
-                        </button>
-                    </div>
-                    <div id="org-chart-container" style="padding: 2rem; text-align: center; color: #999;">
-                        Click "Generate Chart" to create an automated organization chart based on volunteer data.
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Users Page -->
             <div id="users-page" class="page page-hidden">
@@ -1473,6 +1461,63 @@
             <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
                 <button type="button" class="btn btn-secondary" onclick="closeViewModal()">Close</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal for Generate Org Chart -->
+    <div id="generate-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Generate Automated Organization Chart</h2>
+                <button class="close-btn" onclick="closeGenerateModal()">&times;</button>
+            </div>
+            <form id="generate-form" onsubmit="generateAutomatedChart(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Event Date <span class="required">*</span></label>
+                        <input type="date" class="form-input" id="chart-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Meal Objective <span class="required">*</span></label>
+                        <input type="number" class="form-input" id="chart-objective" placeholder="e.g., 2400" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Menu</label>
+                    <input type="text" class="form-input" id="chart-menu" placeholder="e.g., Champorado">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Generation Options</label>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="balance-teams" checked>
+                            <span>Balance team sizes automatically</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="prioritize-experience" checked>
+                            <span>Prioritize experienced volunteers for leadership roles</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="avoid-conflicts" checked>
+                            <span>Avoid scheduling conflicts</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="alert alert-info" style="margin: 1rem 0;">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Note:</strong> The automated system will analyze volunteer skills, experience, and availability to create optimal team assignments.
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeGenerateModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-magic"></i> Generate Chart
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1735,88 +1780,7 @@
             }
         }
 
-        // Generate Organization Chart
-        function generateOrgChart() {
-            const container = document.getElementById('org-chart-container');
 
-            // Show loading state
-            container.innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Generating organization chart...</div>';
-
-            // Simulate API call delay
-            setTimeout(() => {
-                // Mock organization chart data
-                const orgData = {
-                    name: "Executive Director",
-                    children: [
-                        {
-                            name: "Operations Manager",
-                            children: [
-                                { name: "Logistics Coordinator", children: [] },
-                                { name: "Event Coordinator", children: [] }
-                            ]
-                        },
-                        {
-                            name: "Media Manager",
-                            children: [
-                                { name: "Content Creator", children: [] },
-                                { name: "Social Media Specialist", children: [] }
-                            ]
-                        },
-                        {
-                            name: "Finance Manager",
-                            children: [
-                                { name: "Accountant", children: [] },
-                                { name: "Fundraising Coordinator", children: [] }
-                            ]
-                        }
-                    ]
-                };
-
-                // Generate HTML representation of org chart
-                container.innerHTML = `
-                    <div style="overflow-x: auto;">
-                        <div class="org-chart" style="min-width: 800px; padding: 2rem;">
-                            ${generateOrgChartHTML(orgData)}
-                        </div>
-                    </div>
-                    <div style="text-align: center; margin-top: 2rem;">
-                        <button class="btn btn-secondary" onclick="exportOrgChart()">
-                            <i class="fas fa-download"></i> Export Chart
-                        </button>
-                    </div>
-                `;
-            }, 2000);
-        }
-
-        // Generate HTML for organization chart
-        function generateOrgChartHTML(node, level = 0) {
-            const indent = level * 40;
-            let html = `
-                <div class="org-node" style="margin-left: ${indent}px; margin-bottom: 1rem;">
-                    <div class="org-card" style="background: #1a2332; border: 1px solid #2d3e52; border-radius: 0.5rem; padding: 1rem; display: inline-block; min-width: 200px; text-align: center;">
-                        <div style="font-weight: 600; color: #ff6b35;">${node.name}</div>
-                        ${node.children && node.children.length > 0 ? '<div style="margin-top: 0.5rem; color: #999; font-size: 0.875rem;">' + node.children.length + ' direct reports</div>' : ''}
-                    </div>
-                </div>
-            `;
-
-            if (node.children && node.children.length > 0) {
-                html += '<div class="org-children" style="position: relative;">';
-                html += '<div class="org-connector" style="position: absolute; left: ' + (indent + 100) + 'px; top: -10px; width: 2px; height: 20px; background: #2d3e52;"></div>';
-
-                node.children.forEach(child => {
-                    html += generateOrgChartHTML(child, level + 1);
-                });
-                html += '</div>';
-            }
-
-            return html;
-        }
-
-        // Export Organization Chart
-        function exportOrgChart() {
-            alert('Organization chart export functionality would be implemented here. This could generate a PDF or image of the chart.');
-        }
 
         function showLogoutModal() {
             document.getElementById('logout-modal').style.display = 'flex';

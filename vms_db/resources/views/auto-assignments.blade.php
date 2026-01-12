@@ -15,7 +15,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #ffffff;
             padding: 20px;
-            color: #ffffff;
+            color: #1e293b;
         }
 
         .container {
@@ -23,12 +23,12 @@
             margin: 0 auto;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(255, 140, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(24, 119, 242, 0.3);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%);
+            background: linear-gradient(135deg, #1877F2 0%, #42A5F5 100%);
             padding: 30px;
             text-align: center;
             color: white;
@@ -54,7 +54,7 @@
             padding: 25px;
             border-radius: 8px;
             margin-bottom: 30px;
-            border-left: 4px solid #ff8c00;
+            border-left: 4px solid #1877F2;
         }
 
         .controls-grid {
@@ -114,14 +114,14 @@
         }
 
         .btn-generate {
-            background: #ff8c00;
+            background: #1877F2;
             color: white;
         }
 
         .btn-generate:hover {
-            background: #ff6600;
+            background: #1565C0;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);
         }
 
         .btn-regenerate {
@@ -136,12 +136,12 @@
 
         .btn-save {
             background: white;
-            color: #ff8c00;
-            border: 2px solid #ff8c00;
+            color: #1877F2;
+            border: 2px solid #1877F2;
         }
 
         .btn-save:hover {
-            background: #ff8c00;
+            background: #1877F2;
             color: white;
         }
 
@@ -157,7 +157,7 @@
 
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #ff8c00;
+            border-top: 4px solid #1877F2;
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -220,14 +220,14 @@
             background: white;
             border-radius: 8px;
             padding: 20px;
-            border-left: 4px solid #ff8c00;
+            border-left: 4px solid #1877F2;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.3s;
         }
 
         .assignment-card:hover {
             transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.2);
         }
 
         .card-title {
@@ -272,7 +272,7 @@
 
         .member-skill {
             font-size: 11px;
-            background: #ff8c00;
+            background: #1877F2;
             color: white;
             padding: 3px 8px;
             border-radius: 10px;
