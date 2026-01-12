@@ -118,4 +118,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     // Org Chart Management
     Route::get('/org-chart', [AdminDashboardController::class, 'orgChart'])->name('admin.org-chart');
     Route::post('/org-chart', [AdminDashboardController::class, 'updateOrgChart'])->name('admin.org-chart.update');
+
+    // Poll Management
+    Route::get('/polls', [PollManagementController::class, 'index'])->name('admin.polls');
 });
