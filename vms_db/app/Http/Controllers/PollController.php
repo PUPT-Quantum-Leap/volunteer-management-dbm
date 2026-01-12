@@ -46,7 +46,7 @@ class PollController extends Controller
             'question' => $poll->question,
             'max_votes' => $poll->max_votes,
             'total_votes' => $poll->options->sum('votes'),
-            'options' => $poll->options->map(fn($o) => ['id' => $o->id, 'text' => $o->text, 'votes' => $o->votes]),
+            'options' => $poll->options->map(fn ($o) => ['id' => $o->id, 'text' => $o->text, 'votes' => $o->votes]),
         ]);
     }
 }

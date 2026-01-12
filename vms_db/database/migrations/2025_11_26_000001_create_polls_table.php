@@ -28,7 +28,7 @@ return new class extends Migration
             $table->foreignId('poll_option_id')->constrained('poll_options')->onDelete('cascade');
             $table->unsignedBigInteger('volunteer_id')->nullable();
             $table->timestamps();
-            $table->unique(['poll_id','volunteer_id']);
+            $table->unique(['poll_id', 'volunteer_id']);
         });
     }
 

@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Volunteer;
 use App\Models\OrgChart;
-use Illuminate\Support\Facades\DB;
+use App\Models\Volunteer;
+use Illuminate\Http\Request;
 
 class AssignmentController extends Controller
 {
@@ -59,7 +58,7 @@ class AssignmentController extends Controller
             'date' => 'required|date',
             'objective' => 'required|integer|min:1',
             'menu' => 'required|string',
-            'assignments' => 'required|array'
+            'assignments' => 'required|array',
         ]);
 
         $date = $request->date;
@@ -88,7 +87,7 @@ class AssignmentController extends Controller
             'delta1' => 'team_delta1',
             'delta2' => 'team_delta2',
             'echo' => 'team_echo',
-            'foxtrot' => 'team_foxtrot'
+            'foxtrot' => 'team_foxtrot',
         ];
 
         $teamTypes = [
@@ -99,33 +98,45 @@ class AssignmentController extends Controller
             'delta1' => 'arroP',
             'delta2' => 'EUCATYN',
             'echo' => 'DELPAN',
-            'foxtrot' => 'PAR/SUN'
+            'foxtrot' => 'PAR/SUN',
         ];
 
         foreach ($teamMappings as $teamKey => $assignmentKey) {
             $members = $assignments['am_distribution'][$assignmentKey] ?? $assignments['pm_distribution'][$assignmentKey] ?? [];
-            $leader = !empty($members) ? $members[0]['name'] : '';
+            $leader = ! empty($members) ? $members[0]['name'] : '';
             $memberNames = array_slice($members, 1);
-            $memberNames = array_map(function($m) { return $m['name']; }, $memberNames);
+            $memberNames = array_map(function ($m) {
+                return $m['name'];
+            }, $memberNames);
 
             $teams[$teamKey] = [
                 'type' => $teamTypes[$teamKey] ?? '',
                 'leader' => $leader,
-                'members' => $memberNames
+                'members' => $memberNames,
             ];
         }
 
         $orgChart->teams = json_encode($teams);
 
         // Map kitchen roles
-        $orgChart->kitchen_truck = json_encode(array_map(function($m) { return $m['name']; }, $assignments['mobile_kitchen']['kitchen_truck'] ?? []));
-        $orgChart->food_prep = json_encode(array_map(function($m) { return $m['name']; }, $assignments['mobile_kitchen']['food_prep'] ?? []));
-        $orgChart->volunteer_care = json_encode(array_map(function($m) { return $m['name']; }, $assignments['mobile_kitchen']['volunteer_care'] ?? []));
-        $orgChart->wash_cleanup = json_encode(array_map(function($m) { return $m['name']; }, $assignments['mobile_kitchen']['wash_cleanup'] ?? []));
-        $orgChart->inventory = json_encode(array_map(function($m) { return $m['name']; }, $assignments['mobile_kitchen']['inventory'] ?? []));
+        $orgChart->kitchen_truck = json_encode(array_map(function ($m) {
+            return $m['name'];
+        }, $assignments['mobile_kitchen']['kitchen_truck'] ?? []));
+        $orgChart->food_prep = json_encode(array_map(function ($m) {
+            return $m['name'];
+        }, $assignments['mobile_kitchen']['food_prep'] ?? []));
+        $orgChart->volunteer_care = json_encode(array_map(function ($m) {
+            return $m['name'];
+        }, $assignments['mobile_kitchen']['volunteer_care'] ?? []));
+        $orgChart->wash_cleanup = json_encode(array_map(function ($m) {
+            return $m['name'];
+        }, $assignments['mobile_kitchen']['wash_cleanup'] ?? []));
+        $orgChart->inventory = json_encode(array_map(function ($m) {
+            return $m['name'];
+        }, $assignments['mobile_kitchen']['inventory'] ?? []));
 
         // Set defaults for other fields if not set
-        if (!$orgChart->exists) {
+        if (! $orgChart->exists) {
             $orgChart->planning = 'Heidi Giague';
             $orgChart->purchasing = 'Stephanie Tan';
             $orgChart->mwc_coordinator = 'Kevin Tabares';
@@ -139,7 +150,7 @@ class AssignmentController extends Controller
                 ['team' => 'Delta 1', 'vehicle' => 'Hilux'],
                 ['team' => 'Delta 2', 'vehicle' => 'Black'],
                 ['team' => 'Echo', 'vehicle' => 'Chevy'],
-                ['team' => 'Foxtrot', 'vehicle' => 'Flexi/Clipper']
+                ['team' => 'Foxtrot', 'vehicle' => 'Flexi/Clipper'],
             ]);
         }
 
@@ -185,22 +196,22 @@ class AssignmentController extends Controller
                 'food_prep' => max(3, ceil($meals / 400)),
                 'volunteer_care' => max(2, ceil($meals / 1200)),
                 'wash_cleanup' => max(3, ceil($meals / 600)),
-                'inventory' => max(2, ceil($meals / 1000))
+                'inventory' => max(2, ceil($meals / 1000)),
             ],
             'am_distribution' => [
                 'coordinator' => 1,
                 'team_alpha' => 1,
                 'team_bravo' => 2,
                 'team_charlie1' => 2,
-                'team_charlie2' => 2
+                'team_charlie2' => 2,
             ],
             'pm_distribution' => [
                 'coordinator' => 1,
                 'team_delta1' => 2,
                 'team_delta2' => 2,
                 'team_echo' => 2,
-                'team_foxtrot' => 1
-            ]
+                'team_foxtrot' => 1,
+            ],
         ];
     }
 
@@ -214,12 +225,12 @@ class AssignmentController extends Controller
             'care' => [],
             'cleanup' => [],
             'logistics' => [],
-            'dist' => []
+            'dist' => [],
         ];
 
         foreach ($volunteers as $volunteer) {
             $skills = json_decode($volunteer->skills, true) ?? [];
-            $name = $volunteer->first_name . ' ' . $volunteer->last_name;
+            $name = $volunteer->first_name.' '.$volunteer->last_name;
 
             // Map skills to categories
             foreach ($skills as $skill) {
@@ -313,22 +324,22 @@ class AssignmentController extends Controller
                 'food_prep' => [],
                 'volunteer_care' => [],
                 'wash_cleanup' => [],
-                'inventory' => []
+                'inventory' => [],
             ],
             'am_distribution' => [
                 'coordinator' => $coordinators['am_coordinator'],
                 'team_alpha' => [],
                 'team_bravo' => [],
                 'team_charlie1' => [],
-                'team_charlie2' => []
+                'team_charlie2' => [],
             ],
             'pm_distribution' => [
                 'coordinator' => $coordinators['pm_coordinator'],
                 'team_delta1' => [],
                 'team_delta2' => [],
                 'team_echo' => [],
-                'team_foxtrot' => []
-            ]
+                'team_foxtrot' => [],
+            ],
         ];
 
         // Assign Mobile Kitchen roles
@@ -411,7 +422,9 @@ class AssignmentController extends Controller
         $count = 0;
 
         foreach ($availableMembers as $member) {
-            if ($count >= $requiredCount) break;
+            if ($count >= $requiredCount) {
+                break;
+            }
             $assigned[] = $member;
             $count++;
         }
@@ -424,9 +437,15 @@ class AssignmentController extends Controller
         $total = 0;
 
         // Count coordinators
-        if ($assignments['mobile_kitchen']['coordinator'] !== 'TBD') $total++;
-        if ($assignments['am_distribution']['coordinator'] !== 'TBD') $total++;
-        if ($assignments['pm_distribution']['coordinator'] !== 'TBD') $total++;
+        if ($assignments['mobile_kitchen']['coordinator'] !== 'TBD') {
+            $total++;
+        }
+        if ($assignments['am_distribution']['coordinator'] !== 'TBD') {
+            $total++;
+        }
+        if ($assignments['pm_distribution']['coordinator'] !== 'TBD') {
+            $total++;
+        }
 
         // Count team members
         foreach ($assignments as $section => $roles) {

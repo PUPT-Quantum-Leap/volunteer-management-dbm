@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 class TestLogin extends Command
 {
     protected $signature = 'test:login {email} {password}';
+
     protected $description = 'Test if login credentials work';
 
     public function handle()
@@ -18,12 +19,13 @@ class TestLogin extends Command
 
         $user = User::where('email', $email)->first();
 
-        if (!$user) {
+        if (! $user) {
             $this->error("❌ User with email '{$email}' NOT FOUND in database!");
             $this->info("\n📋 All users in database:");
-            User::all()->each(function($u) {
+            User::all()->each(function ($u) {
                 $this->line("  - {$u->email} (role: {$u->role})");
             });
+
             return 1;
         }
 
@@ -32,13 +34,15 @@ class TestLogin extends Command
         $this->info("   Name: {$user->name}");
 
         if (Hash::check($password, $user->password)) {
-            $this->info("✅ Password is CORRECT!");
+            $this->info('✅ Password is CORRECT!');
             $this->info("\n🎉 Login should work!");
+
             return 0;
         } else {
-            $this->error("❌ Password is INCORRECT!");
+            $this->error('❌ Password is INCORRECT!');
             $this->warn("\n💡 To reset password, run:");
             $this->line("   php artisan user:reset-password {$email}");
+
             return 1;
         }
     }
