@@ -1477,6 +1477,27 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm Delete</h2>
+                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div style="padding: 1.5rem;">
+                <p style="margin-bottom: 1.5rem; color: #f1f5f9;">
+                    Are you sure you want to delete this volunteer? This action cannot be undone.
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let volunteers = [];
         let currentVolunteerId = null;
@@ -1674,36 +1695,49 @@
             document.getElementById('view-modal').classList.remove('active');
         }
 
+        // Delete Volunteer
+        function deleteVolunteer(id) {
+            currentVolunteerId = id;
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        // Close Delete Modal
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('active');
+            currentVolunteerId = null;
+        }
+
+        // Confirm Delete
+        async function confirmDelete() {
+            if (!currentVolunteerId) return;
+            
+            try {
+                const response = await fetch(`/admin/volunteer/${currentVolunteerId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    closeDeleteModal();
+                    // Reload the page to get fresh data from database
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to delete volunteer'));
+                }
+            } catch (error) {
+                console.error('Error deleting volunteer:', error);
+                alert('Error: Failed to delete volunteer. Please try again.');
+            }
+        }
+
         // Edit Volunteer
         function editVolunteer(id) {
             openModal('edit', id);
-        }
-
-        // Delete Volunteer
-        async function deleteVolunteer(id) {
-            if (confirm('Are you sure you want to delete this volunteer?')) {
-                try {
-                    const response = await fetch(`/admin/volunteer/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    });
-
-                    const result = await response.json();
-                    
-                    if (response.ok) {
-                        // Reload the page to get fresh data from database
-                        window.location.reload();
-                    } else {
-                        alert('Error: ' + (result.message || 'Failed to delete volunteer'));
-                    }
-                } catch (error) {
-                    console.error('Error deleting volunteer:', error);
-                    alert('Error: Failed to delete volunteer. Please try again.');
-                }
-            }
         }
 
         // Update Stats
