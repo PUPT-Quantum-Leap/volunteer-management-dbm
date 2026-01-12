@@ -104,6 +104,11 @@
             box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
         }
 
+        .input-error {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+        }
+
         .toggle-password {
             position: absolute;
             right: 12px;
@@ -249,6 +254,28 @@
         .signup-link a:hover {
             color: #166fe5;
         }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-danger {
+            background-color: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+        }
+
+        .text-danger {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .small {
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -264,14 +291,36 @@
         <div class="form-card">
             <form id="loginForm" method="POST" action="{{ url('/login') }}">
                 @csrf
+
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0" style="margin: 0; padding-left: 20px;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <div class="input-wrapper">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
-                        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            placeholder="you@example.com" 
+                            value="{{ old('email') }}"
+                            required
+                            class="{{ $errors->has('email') ? 'input-error' : '' }}"
+                        />
                     </div>
+                    @error('email')
+                        <div class="text-danger small">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="form-group">
@@ -280,7 +329,14 @@
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                         </svg>
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="Enter your password" 
+                            required
+                            class="{{ $errors->has('password') ? 'input-error' : '' }}"
+                        />
                         <button type="button" class="toggle-password" onclick="togglePassword()">
                             <svg id="eyeIcon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -288,11 +344,14 @@
                             </svg>
                         </button>
                     </div>
+                    @error('password')
+                        <div class="text-danger small">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="form-options">
                     <div class="checkbox-wrapper">
-                        <input type="checkbox" id="remember" name="remember">
+                        <input type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
                         <label for="remember">Remember me</label>
                     </div>
                     <a href="#" class="forgot-link">Forgot password?</a>
@@ -300,28 +359,6 @@
 
                 <button type="submit" class="submit-btn">Sign In</button>
             </form>
-
-            <!-- <div class="divider">
-                <span>Or continue with</span>
-            </div>
-
-            <div class="social-buttons">
-                <button class="social-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                    </svg>
-                    Google
-                </button>
-                <button class="social-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    Facebook
-                </button>
-            </div> -->
 
             <div class="signup-link">
                 Don't have an account? <a href="{{ url('/signup') }}">Sign up</a>
@@ -342,6 +379,79 @@
                 eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
             }
         }
+
+        // Function to show styled error message
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const wrapper = field.closest('.form-group');
+            
+            const existingError = wrapper.querySelector('.js-error');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            field.classList.add('input-error');
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'text-danger small js-error';
+            errorDiv.textContent = message;
+            wrapper.appendChild(errorDiv);
+        }
+
+        // Function to clear field errors
+        function clearFieldError(fieldId) {
+            const field = document.getElementById(fieldId);
+            const wrapper = field.closest('.form-group');
+            const existingError = wrapper.querySelector('.js-error');
+            
+            if (existingError) {
+                existingError.remove();
+            }
+            field.classList.remove('input-error');
+        }
+
+        // Real-time validation
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            let hasError = false;
+            
+            // Clear previous errors
+            clearFieldError('email');
+            clearFieldError('password');
+            
+            if (!email) {
+                e.preventDefault();
+                showFieldError('email', 'Email address is required.');
+                hasError = true;
+            }
+            
+            if (!password) {
+                e.preventDefault();
+                showFieldError('password', 'Password is required.');
+                hasError = true;
+            }
+            
+            return !hasError;
+        });
+
+        // Email validation
+        document.getElementById('email').addEventListener('blur', function() {
+            const email = this.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email && !emailRegex.test(email)) {
+                showFieldError('email', 'Please enter a valid email address.');
+            } else {
+                clearFieldError('email');
+            }
+        });
+
+        document.querySelectorAll('input').forEach(function(element) {
+            element.addEventListener('input', function() {
+                clearFieldError(this.id);
+            });
+        });
     </script>
 </body>
 </html>

@@ -51,4 +51,28 @@ class User extends Authenticatable
     {
         return $this->hasOne(Volunteer::class);
     }
+
+    /**
+     * Check if user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is a volunteer.
+     */
+    public function isVolunteer(): bool
+    {
+        return $this->role === 'volunteer';
+    }
+
+    /**
+     * Check if user has a specific role.
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
 }

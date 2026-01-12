@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin Dashboard</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -1152,7 +1153,7 @@
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="stat-label">Total Volunteers</div>
-                        <div class="stat-value">{{ $stats['total_volunteers'] }}</div>
+                        <div class="stat-value" id="total-volunteers">{{ $stats['total_volunteers'] }}</div>
                     </div>
 
                     <div class="stat-card">
@@ -1521,6 +1522,50 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm Delete</h2>
+                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div style="padding: 1.5rem;">
+                <p style="margin-bottom: 1.5rem; color: #f1f5f9;">
+                    Are you sure you want to delete this volunteer? This action cannot be undone.
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Success</h2>
+                <button class="close-btn" onclick="closeSuccessModal()">&times;</button>
+            </div>
+            <div style="padding: 1.5rem; text-align: center;">
+                <div style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <p id="success-message" style="font-size: 1.1rem; color: #f1f5f9; margin: 0;">
+                    Operation completed successfully!
+                </p>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                <button type="button" class="btn btn-primary" onclick="closeSuccessModal()">
+                    <i class="fas fa-check"></i> OK
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let volunteers = [];
         let currentVolunteerId = null;
@@ -1545,16 +1590,11 @@
 
         // Load Volunteers
         function loadVolunteers() {
-            const stored = localStorage.getItem('volunteers');
-            if (stored) {
-                volunteers = JSON.parse(stored);
-            } else {
-                volunteers = [
-                    {id: 1, firstName: 'John', lastName: 'Doe', email: 'john@example.com', mobile: '09123456789', area: 'logistics', address: '123 Main St', status: 'active'},
-                    {id: 2, firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com', mobile: '09187654321', area: 'media', address: '456 Oak Ave', status: 'active'},
-                    {id: 3, firstName: 'Mike', lastName: 'Johnson', email: 'mike@example.com', mobile: '09156789012', area: 'finance', address: '789 Pine Rd', status: 'active'}
-                ];
-            }
+            const tbody = document.getElementById('volunteers-tbody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading volunteers...</td></tr>';
+            
+            // Use real database data passed from Laravel
+            volunteers = @json($allVolunteers);
             renderVolunteers();
             updateStats();
         }
@@ -1564,14 +1604,19 @@
             const tbody = document.getElementById('volunteers-tbody');
             tbody.innerHTML = '';
 
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No volunteers found.</td></tr>';
+                return;
+            }
+
             filtered.forEach(v => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${v.firstName} ${v.lastName}</td>
+                    <td>${v.first_name} ${v.last_name}</td>
                     <td>${v.email}</td>
-                    <td>${v.area.charAt(0).toUpperCase() + v.area.slice(1)}</td>
-                    <td>${v.mobile}</td>
-                    <td><span class="badge badge-success">${v.status}</span></td>
+                    <td>${v.volunteer_area ? v.volunteer_area.charAt(0).toUpperCase() + v.volunteer_area.slice(1) : 'N/A'}</td>
+                    <td>${v.mobile || 'N/A'}</td>
+                    <td><span class="badge badge-success">Active</span></td>
                     <td>
                         <div class="action-links">
                             <button class="action-btn action-btn-view" onclick="viewVolunteer(${v.id})">
@@ -1596,10 +1641,10 @@
             const areaFilter = document.getElementById('area-filter').value;
             
             let filtered = volunteers.filter(v => {
-                const matchesSearch = v.firstName.toLowerCase().includes(searchTerm) || 
-                                    v.lastName.toLowerCase().includes(searchTerm) ||
+                const matchesSearch = v.first_name.toLowerCase().includes(searchTerm) || 
+                                    v.last_name.toLowerCase().includes(searchTerm) ||
                                     v.email.toLowerCase().includes(searchTerm);
-                const matchesArea = !areaFilter || v.area === areaFilter;
+                const matchesArea = !areaFilter || v.volunteer_area === areaFilter;
                 return matchesSearch && matchesArea;
             });
             
@@ -1625,11 +1670,11 @@
                 if (volunteer) {
                     title.textContent = 'Edit Volunteer';
                     document.getElementById('volunteer-id').value = volunteer.id;
-                    document.getElementById('first-name').value = volunteer.firstName;
-                    document.getElementById('last-name').value = volunteer.lastName;
+                    document.getElementById('first-name').value = volunteer.first_name;
+                    document.getElementById('last-name').value = volunteer.last_name;
                     document.getElementById('email').value = volunteer.email;
                     document.getElementById('mobile').value = volunteer.mobile;
-                    document.getElementById('volunteer-area').value = volunteer.area;
+                    document.getElementById('volunteer-area').value = volunteer.volunteer_area;
                     document.getElementById('address').value = volunteer.address || '';
                 }
             }
@@ -1643,32 +1688,79 @@
         }
 
         // Save Volunteer
-        function saveVolunteer(e) {
+        async function saveVolunteer(e) {
             e.preventDefault();
             
             const id = document.getElementById('volunteer-id').value;
             const volunteer = {
-                id: id ? parseInt(id) : Date.now(),
-                firstName: document.getElementById('first-name').value,
-                lastName: document.getElementById('last-name').value,
+                first_name: document.getElementById('first-name').value,
+                last_name: document.getElementById('last-name').value,
                 email: document.getElementById('email').value,
                 mobile: document.getElementById('mobile').value,
-                area: document.getElementById('volunteer-area').value,
-                address: document.getElementById('address').value,
-                status: 'active'
+                volunteer_area: document.getElementById('volunteer-area').value,
+                address: document.getElementById('address').value
             };
 
-            if (id) {
-                const index = volunteers.findIndex(v => v.id === parseInt(id));
-                volunteers[index] = volunteer;
-            } else {
-                volunteers.push(volunteer);
-            }
+            try {
+                let response;
+                if (id) {
+                    // Update existing volunteer
+                    response = await fetch(`/admin/volunteer/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(volunteer)
+                    });
+                } else {
+                    // Create new volunteer
+                    response = await fetch('/admin/volunteers', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(volunteer)
+                    });
+                }
 
-            localStorage.setItem('volunteers', JSON.stringify(volunteers));
-            renderVolunteers();
-            updateStats();
-            closeModal();
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Close modal and update local data
+                    closeModal();
+                    
+                    if (id) {
+                        // Update existing volunteer in local array
+                        const index = volunteers.findIndex(v => v.id === parseInt(id));
+                        if (index !== -1) {
+                            volunteers[index] = { ...volunteers[index], ...volunteer, id: parseInt(id) };
+                        }
+                    } else {
+                        // Add new volunteer to local array
+                        volunteers.push({ ...volunteer, id: Date.now() }); // Temporary ID, will be updated on page reload
+                    }
+                    
+                    renderVolunteers();
+                    
+                    // Delay updateStats to ensure DOM is ready
+                    setTimeout(() => updateStats(), 100);
+                    
+                    // Show success modal
+                    showSuccessModal(result.message);
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to save volunteer'));
+                }
+            } catch (error) {
+                console.error('Error saving volunteer:', error);
+                alert('Error: Failed to save volunteer. Please try again.');
+            }
+        }
+
+        // Edit Volunteer
+        function editVolunteer(id) {
+            openModal('edit', id);
         }
 
         // View Volunteer
@@ -1678,12 +1770,12 @@
                 const content = document.getElementById('view-content');
                 content.innerHTML = `
                     <div style="display: grid; gap: 1rem;">
-                        <div><strong>Name:</strong> ${volunteer.firstName} ${volunteer.lastName}</div>
+                        <div><strong>Name:</strong> ${volunteer.first_name} ${volunteer.last_name}</div>
                         <div><strong>Email:</strong> ${volunteer.email}</div>
-                        <div><strong>Mobile:</strong> ${volunteer.mobile}</div>
-                        <div><strong>Area:</strong> ${volunteer.area.charAt(0).toUpperCase() + volunteer.area.slice(1)}</div>
+                        <div><strong>Mobile:</strong> ${volunteer.mobile || 'N/A'}</div>
+                        <div><strong>Area:</strong> ${volunteer.volunteer_area ? volunteer.volunteer_area.charAt(0).toUpperCase() + volunteer.volunteer_area.slice(1) : 'N/A'}</div>
                         <div><strong>Address:</strong> ${volunteer.address || 'N/A'}</div>
-                        <div><strong>Status:</strong> <span class="badge badge-success">${volunteer.status}</span></div>
+                        <div><strong>Status:</strong> <span class="badge badge-success">Active</span></div>
                     </div>
                 `;
                 document.getElementById('view-modal').classList.add('active');
@@ -1695,24 +1787,68 @@
             document.getElementById('view-modal').classList.remove('active');
         }
 
-        // Edit Volunteer
-        function editVolunteer(id) {
-            openModal('edit', id);
-        }
-
         // Delete Volunteer
         function deleteVolunteer(id) {
-            if (confirm('Are you sure you want to delete this volunteer?')) {
-                volunteers = volunteers.filter(v => v.id !== id);
-                localStorage.setItem('volunteers', JSON.stringify(volunteers));
-                renderVolunteers();
-                updateStats();
+            currentVolunteerId = id;
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        // Close Delete Modal
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('active');
+            currentVolunteerId = null;
+        }
+
+        // Close Success Modal
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.remove('active');
+        }
+
+        // Show Success Modal
+        function showSuccessModal(message) {
+            document.getElementById('success-message').textContent = message;
+            document.getElementById('success-modal').classList.add('active');
+        }
+
+        // Confirm Delete
+        async function confirmDelete() {
+            if (!currentVolunteerId) return;
+            
+            try {
+                const response = await fetch(`/admin/volunteer/${currentVolunteerId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    closeDeleteModal();
+                    // Remove from local array and re-render without page reload
+                    volunteers = volunteers.filter(v => v.id !== currentVolunteerId);
+                    renderVolunteers();
+                    updateStats();
+                    
+                    // Show success modal
+                    showSuccessModal('Volunteer deleted successfully!');
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to delete volunteer'));
+                }
+            } catch (error) {
+                console.error('Error deleting volunteer:', error);
+                alert('Error: Failed to delete volunteer. Please try again.');
             }
         }
 
         // Update Stats
         function updateStats() {
-            document.getElementById('total-volunteers').textContent = volunteers.length;
+            const element = document.getElementById('total-volunteers');
+            if (element) {
+                element.textContent = volunteers.length;
+            }
         }
 
         // Search Polls

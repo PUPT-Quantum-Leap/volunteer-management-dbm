@@ -23,7 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Run opencode
+      - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
