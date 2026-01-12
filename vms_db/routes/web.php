@@ -1,14 +1,22 @@
 <?php
 
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AttendancePerformanceController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\OrgChartController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\PollManagementController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\VolunteerController;
 use App\Http\Controllers\VolunteerDashboardController;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Public Routes (No Authentication Required)
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,42 +34,69 @@ Route::get('/login', function () {
 
 Route::post('/login', [LoginController::class, 'store']);
 
-Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes (Any Logged-in User)
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware(['auth'])->group(function () {
+    // Logout
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Volunteer registration form (authenticated users can register as volunteers)
     Route::get('/volunteer-form', function () {
         return view('volunteer-form');
     });
-
     Route::post('/volunteer-register', [VolunteerController::class, 'store']);
+
+    // Org Chart - View only (both admin and volunteer can view)
+    Route::get('/org-chart', [OrgChartController::class, 'show']);
+
+    // Poll voting - Both roles can vote
+    Route::post('/api/polls/{poll}/vote', [PollController::class, 'vote']);
 });
 
-Route::get('/volunteer/{id}/dashboard', [VolunteerDashboardController::class, 'show'])->name('volunteer.dashboard');
-Route::put('/volunteer/{id}/update', [VolunteerDashboardController::class, 'update'])->name('volunteer.update');
-Route::delete('/volunteer/{id}/delete', [VolunteerDashboardController::class, 'delete'])->name('volunteer.delete');
+/*
+|--------------------------------------------------------------------------
+| Volunteer Routes (Volunteers Only)
+|--------------------------------------------------------------------------
+*/
 
-// API vote endpoint
-Route::post('/api/polls/{poll}/vote', [PollController::class, 'vote']);
+Route::middleware(['auth', 'role:volunteer'])->group(function () {
+    // Volunteer Dashboard - volunteers can view/edit their own profile
+    Route::get('/volunteer/{id}/dashboard', [VolunteerDashboardController::class, 'show'])->name('volunteer.dashboard');
+    Route::put('/volunteer/{id}/update', [VolunteerDashboardController::class, 'update'])->name('volunteer.update');
+    Route::delete('/volunteer/{id}/delete', [VolunteerDashboardController::class, 'delete'])->name('volunteer.delete');
+});
 
-// Poll management routes
-Route::get('/polls/create', [PollManagementController::class, 'create']);
-Route::post('/polls/create', [PollManagementController::class, 'store']);
-Route::get('/polls/manage', [PollManagementController::class, 'index']);
-Route::delete('/polls/{poll}/delete', [PollManagementController::class, 'destroy']);
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (Admins Only)
+|--------------------------------------------------------------------------
+*/
 
-// Attendance and Performance routes
-Route::post('/volunteer/{id}/attendance', [AttendancePerformanceController::class, 'recordAttendance'])->name('attendance.record');
-Route::post('/volunteer/{id}/performance', [AttendancePerformanceController::class, 'recordPerformance'])->name('performance.record');
-Route::get('/api/volunteer/{id}/attendance-stats', [AttendancePerformanceController::class, 'getAttendanceStats']);
-Route::get('/api/volunteer/{id}/performance-summary', [AttendancePerformanceController::class, 'getPerformanceSummary']);
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    // Poll Management - Admin only
+    Route::get('/polls/create', [PollManagementController::class, 'create']);
+    Route::post('/polls/create', [PollManagementController::class, 'store']);
+    Route::get('/polls/manage', [PollManagementController::class, 'index']);
+    Route::delete('/polls/{poll}/delete', [PollManagementController::class, 'destroy']);
 
-Route::get('/org-chart', [App\Http\Controllers\OrgChartController::class, 'show']);
-Route::get('/auto-assignments', [App\Http\Controllers\AssignmentController::class, 'show']);
-Route::post('/api/assignments/generate', [App\Http\Controllers\AssignmentController::class, 'generate']);
-Route::post('/api/assignments/save', [App\Http\Controllers\AssignmentController::class, 'save']);
+    // Attendance and Performance recording - Admin only
+    Route::post('/volunteer/{id}/attendance', [AttendancePerformanceController::class, 'recordAttendance'])->name('attendance.record');
+    Route::post('/volunteer/{id}/performance', [AttendancePerformanceController::class, 'recordPerformance'])->name('performance.record');
+    Route::get('/api/volunteer/{id}/attendance-stats', [AttendancePerformanceController::class, 'getAttendanceStats']);
+    Route::get('/api/volunteer/{id}/performance-summary', [AttendancePerformanceController::class, 'getPerformanceSummary']);
 
-// Admin Dashboard Routes
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+    // Auto Assignments - Admin only
+    Route::get('/auto-assignments', [AssignmentController::class, 'show']);
+    Route::post('/api/assignments/generate', [AssignmentController::class, 'generate']);
+    Route::post('/api/assignments/save', [AssignmentController::class, 'save']);
+});
+
+// Admin Dashboard Routes - Admin only
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     // Volunteer Management
