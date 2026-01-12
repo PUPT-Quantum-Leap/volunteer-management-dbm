@@ -26,7 +26,11 @@
             color: white;
             padding: 1.5rem 2rem;
             box-shadow: 0 4px 20px rgba(24, 119, 242, 0.3);
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
             overflow: hidden;
         }
 
@@ -417,7 +421,7 @@
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
         }
 
         .form-label {
@@ -427,16 +431,10 @@
             margin-bottom: 0.5rem;
             color: #ffffff;
         }
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #fff;
-        }
 
         .form-input, .form-select, .form-textarea {
             width: 100%;
-            padding: 0.875rem;
+            padding: 0.625rem 0.875rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
             background-color: rgba(255, 255, 255, 0.05);
             color: #fff;
@@ -630,15 +628,16 @@
         .sidebar {
             position: fixed;
             left: 0;
-            top: 0;
-            height: 100vh;
+            top: 110px;
+            height: calc(100vh - 110px);
             width: 250px;
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             padding: 2rem 0;
             overflow-y: auto;
-            z-index: 100;
+            z-index: 900;
             box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
         }
 
@@ -678,6 +677,7 @@
 
         .main-content {
             margin-left: 250px;
+            margin-top: 110px;
             min-height: 100vh;
         }
 
@@ -1010,9 +1010,18 @@
         }
 
         .light-mode .checkbox-item {
-            background: rgba(255, 255, 255, 0.9);
-            border-color: rgba(24, 119, 242, 0.2);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.8) 100%);
+            border: 2px solid rgba(24, 119, 242, 0.2);
             color: #1e293b;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .checkbox-item:hover {
+            border-color: rgba(24, 119, 242, 0.4);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.1);
         }
 
         .light-mode .checkbox-item label {
@@ -1021,6 +1030,27 @@
 
         .light-mode .checkbox-item input {
             accent-color: #1877F2;
+            width: 18px;
+            height: 18px;
+        }
+
+        .light-mode .search-input {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.8) 100%);
+            color: #1e293b;
+            border: 2px solid rgba(24, 119, 242, 0.2);
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .search-input:hover {
+            border-color: rgba(24, 119, 242, 0.4);
+        }
+
+        .light-mode .search-input:focus {
+            border-color: #1877F2;
+            box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.15), 0 4px 12px rgba(24, 119, 242, 0.1);
+            background: rgba(255, 255, 255, 0.95);
         }
 
         .light-mode .form-input,
@@ -1057,6 +1087,75 @@
 
         .light-mode .modal-title {
             color: #1e293b;
+        }
+
+        .light-mode .modal-content {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(24, 119, 242, 0.2);
+            color: #1e293b;
+        }
+
+        .light-mode .modal-header {
+            border-bottom-color: rgba(24, 119, 242, 0.2);
+        }
+
+        .light-mode .close-btn {
+            color: #64748b;
+        }
+
+        .light-mode .close-btn:hover {
+            background: rgba(24, 119, 242, 0.1);
+            color: #1877F2;
+        }
+
+        .light-mode .form-input,
+        .light-mode .form-select,
+        .light-mode .form-textarea {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #1e293b;
+            border-color: rgba(24, 119, 242, 0.3);
+        }
+
+        .light-mode .form-input::placeholder,
+        .light-mode .form-select::placeholder,
+        .light-mode .form-textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        .light-mode .form-input:focus,
+        .light-mode .form-select:focus,
+        .light-mode .form-textarea:focus {
+            border-color: #1877F2;
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.2);
+        }
+
+        .light-mode .form-label {
+            color: #1e293b;
+        }
+
+        .light-mode .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .light-mode .btn-secondary:hover {
+            background: #cbd5e1;
+            color: #334155;
+        }
+
+        .light-mode .btn-success {
+            background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .light-mode .btn-success:hover {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .light-mode .required {
+            color: #EF4444;
         }
     </style>
 <body>
