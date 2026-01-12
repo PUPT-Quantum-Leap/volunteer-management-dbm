@@ -21,7 +21,7 @@ class AssignmentController extends Controller
             'menu' => 'required|string',
             'balance_teams' => 'boolean',
             'prioritize_experience' => 'boolean',
-            'avoid_conflicts' => 'boolean'
+            'avoid_conflicts' => 'boolean',
         ]);
 
         $date = $request->date;
@@ -48,7 +48,7 @@ class AssignmentController extends Controller
             'assignments' => $assignments,
             'date' => $date,
             'objective' => $objective,
-            'menu' => $menu
+            'menu' => $menu,
         ]);
     }
 
@@ -273,39 +273,41 @@ class AssignmentController extends Controller
         $leaders = $skillCategories['leader'] ?? [];
 
         // Mobile Kitchen Coordinator - prefer those with cooking/logistics experience
-        $mkCandidates = array_filter($leaders, function($leader) use ($availableVolunteers) {
-            $volunteer = $availableVolunteers->find(function($v) use ($leader) {
-                return ($v->first_name . ' ' . $v->last_name) === $leader['name'];
+        $mkCandidates = array_filter($leaders, function ($leader) use ($availableVolunteers) {
+            $volunteer = $availableVolunteers->find(function ($v) use ($leader) {
+                return ($v->first_name.' '.$v->last_name) === $leader['name'];
             });
             if ($volunteer) {
                 $skills = json_decode($volunteer->skills, true) ?? [];
+
                 return in_array('cook', array_map('strtolower', $skills)) ||
                        in_array('logistics', array_map('strtolower', $skills));
             }
+
             return false;
         });
 
-        if (!empty($mkCandidates)) {
+        if (! empty($mkCandidates)) {
             $coordinators['mk_coordinator'] = array_shift($mkCandidates)['name'];
             // Remove from leaders pool
-            $leaders = array_filter($leaders, function($l) use ($coordinators) {
+            $leaders = array_filter($leaders, function ($l) use ($coordinators) {
                 return $l['name'] !== $coordinators['mk_coordinator'];
             });
-        } elseif (!empty($leaders)) {
+        } elseif (! empty($leaders)) {
             $coordinators['mk_coordinator'] = array_shift($leaders)['name'];
         } else {
             $coordinators['mk_coordinator'] = 'TBD';
         }
 
         // AM Distribution Coordinator
-        if (!empty($leaders)) {
+        if (! empty($leaders)) {
             $coordinators['am_coordinator'] = array_shift($leaders)['name'];
         } else {
             $coordinators['am_coordinator'] = 'TBD';
         }
 
         // PM Distribution Coordinator
-        if (!empty($leaders)) {
+        if (! empty($leaders)) {
             $coordinators['pm_coordinator'] = array_shift($leaders)['name'];
         } else {
             $coordinators['pm_coordinator'] = 'TBD';
@@ -314,7 +316,7 @@ class AssignmentController extends Controller
         return $coordinators;
     }
 
-    private function assignTeamMembers($skillCategories, $requirements, $coordinators)
+    private function assignTeamMembers($skillCategories, $requirements, $coordinators, $availableVolunteers, $prioritizeExperience = true)
     {
         $assignments = [
             'totalVolunteers' => 0,
@@ -342,72 +344,113 @@ class AssignmentController extends Controller
             ],
         ];
 
+        $assignedIds = []; // Track assigned volunteer IDs to avoid double assignments
+
         // Assign Mobile Kitchen roles
-        $assignments['mobile_kitchen']['kitchen_truck'] = $this->assignRoleMembers(
+        $assignments['mobile_kitchen']['kitchen_truck'] = $this->assignRoleMembersWithExperience(
             array_merge($skillCategories['driver'], $skillCategories['cook']),
-            $requirements['mobile_kitchen']['kitchen_truck']
+            $requirements['mobile_kitchen']['kitchen_truck'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
-        $assignments['mobile_kitchen']['food_prep'] = $this->assignRoleMembers(
+        $assignments['mobile_kitchen']['food_prep'] = $this->assignRoleMembersWithExperience(
             $skillCategories['prep'],
-            $requirements['mobile_kitchen']['food_prep']
+            $requirements['mobile_kitchen']['food_prep'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
-        $assignments['mobile_kitchen']['volunteer_care'] = $this->assignRoleMembers(
+        $assignments['mobile_kitchen']['volunteer_care'] = $this->assignRoleMembersWithExperience(
             $skillCategories['care'],
-            $requirements['mobile_kitchen']['volunteer_care']
+            $requirements['mobile_kitchen']['volunteer_care'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
-        $assignments['mobile_kitchen']['wash_cleanup'] = $this->assignRoleMembers(
+        $assignments['mobile_kitchen']['wash_cleanup'] = $this->assignRoleMembersWithExperience(
             $skillCategories['cleanup'],
-            $requirements['mobile_kitchen']['wash_cleanup']
+            $requirements['mobile_kitchen']['wash_cleanup'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
-        $assignments['mobile_kitchen']['inventory'] = $this->assignRoleMembers(
+        $assignments['mobile_kitchen']['inventory'] = $this->assignRoleMembersWithExperience(
             $skillCategories['logistics'],
-            $requirements['mobile_kitchen']['inventory']
+            $requirements['mobile_kitchen']['inventory'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
         // Assign AM Distribution roles
-        $assignments['am_distribution']['team_alpha'] = $this->assignRoleMembers(
+        $assignments['am_distribution']['team_alpha'] = $this->assignRoleMembersWithExperience(
             $skillCategories['leader'],
-            $requirements['am_distribution']['team_alpha']
+            $requirements['am_distribution']['team_alpha'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
-        $assignments['am_distribution']['team_bravo'] = $this->assignRoleMembers(
+        $assignments['am_distribution']['team_bravo'] = $this->assignRoleMembersWithExperience(
             array_merge($skillCategories['driver'], $skillCategories['dist']),
-            $requirements['am_distribution']['team_bravo']
+            $requirements['am_distribution']['team_bravo'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
-        $assignments['am_distribution']['team_charlie1'] = $this->assignRoleMembers(
+        $assignments['am_distribution']['team_charlie1'] = $this->assignRoleMembersWithExperience(
             array_merge($skillCategories['leader'], $skillCategories['dist']),
-            $requirements['am_distribution']['team_charlie1']
+            $requirements['am_distribution']['team_charlie1'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
-        $assignments['am_distribution']['team_charlie2'] = $this->assignRoleMembers(
+        $assignments['am_distribution']['team_charlie2'] = $this->assignRoleMembersWithExperience(
             array_merge($skillCategories['driver'], $skillCategories['dist']),
-            $requirements['am_distribution']['team_charlie2']
+            $requirements['am_distribution']['team_charlie2'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
         // Assign PM Distribution roles
-        $assignments['pm_distribution']['team_delta1'] = $this->assignRoleMembers(
+        $assignments['pm_distribution']['team_delta1'] = $this->assignRoleMembersWithExperience(
             array_merge($skillCategories['leader'], $skillCategories['dist']),
-            $requirements['pm_distribution']['team_delta1']
+            $requirements['pm_distribution']['team_delta1'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
-        $assignments['pm_distribution']['team_delta2'] = $this->assignRoleMembers(
+        $assignments['pm_distribution']['team_delta2'] = $this->assignRoleMembersWithExperience(
             array_merge($skillCategories['driver'], $skillCategories['dist']),
-            $requirements['pm_distribution']['team_delta2']
+            $requirements['pm_distribution']['team_delta2'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
-        $assignments['pm_distribution']['team_echo'] = $this->assignRoleMembers(
+        $assignments['pm_distribution']['team_echo'] = $this->assignRoleMembersWithExperience(
             array_merge($skillCategories['leader'], $skillCategories['dist']),
-            $requirements['pm_distribution']['team_echo']
+            $requirements['pm_distribution']['team_echo'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
-        $assignments['pm_distribution']['team_foxtrot'] = $this->assignRoleMembers(
+        $assignments['pm_distribution']['team_foxtrot'] = $this->assignRoleMembersWithExperience(
             $skillCategories['driver'],
-            $requirements['pm_distribution']['team_foxtrot']
+            $requirements['pm_distribution']['team_foxtrot'],
+            $availableVolunteers,
+            $assignedIds,
+            $prioritizeExperience
         );
 
         // Calculate total volunteers
@@ -466,7 +509,7 @@ class AssignmentController extends Controller
      */
     private function filterAvailableVolunteers($volunteers)
     {
-        return $volunteers->filter(function($volunteer) {
+        return $volunteers->filter(function ($volunteer) {
             // Check if volunteer has skills
             $skills = json_decode($volunteer->skills, true);
             if (empty($skills)) {
@@ -489,12 +532,12 @@ class AssignmentController extends Controller
 
         if ($prioritizeExperience) {
             // Sort members by experience score (descending)
-            usort($availableMembers, function($a, $b) use ($allVolunteers) {
-                $volA = $allVolunteers->find(function($v) use ($a) {
-                    return ($v->first_name . ' ' . $v->last_name) === $a['name'];
+            usort($availableMembers, function ($a, $b) use ($allVolunteers) {
+                $volA = $allVolunteers->find(function ($v) use ($a) {
+                    return ($v->first_name.' '.$v->last_name) === $a['name'];
                 });
-                $volB = $allVolunteers->find(function($v) use ($b) {
-                    return ($v->first_name . ' ' . $v->last_name) === $b['name'];
+                $volB = $allVolunteers->find(function ($v) use ($b) {
+                    return ($v->first_name.' '.$v->last_name) === $b['name'];
                 });
 
                 $scoreA = $this->calculateExperienceScore($volA ?? null);
@@ -505,14 +548,16 @@ class AssignmentController extends Controller
         }
 
         foreach ($availableMembers as $member) {
-            if ($count >= $requiredCount) break;
+            if ($count >= $requiredCount) {
+                break;
+            }
 
             // Find volunteer to check if already assigned
-            $volunteer = $allVolunteers->find(function($v) use ($member) {
-                return ($v->first_name . ' ' . $v->last_name) === $member['name'];
+            $volunteer = $allVolunteers->find(function ($v) use ($member) {
+                return ($v->first_name.' '.$v->last_name) === $member['name'];
             });
 
-            if ($volunteer && !in_array($volunteer->id, $assignedIds)) {
+            if ($volunteer && ! in_array($volunteer->id, $assignedIds)) {
                 $assigned[] = $member;
                 $assignedIds[] = $volunteer->id;
                 $count++;
@@ -527,7 +572,9 @@ class AssignmentController extends Controller
      */
     private function calculateExperienceScore($volunteer)
     {
-        if (!$volunteer) return 0;
+        if (! $volunteer) {
+            return 0;
+        }
 
         $score = 0;
 
@@ -590,8 +637,8 @@ class AssignmentController extends Controller
                 foreach ($roles as $role => $members) {
                     if (is_array($members)) {
                         foreach ($members as $member) {
-                            $volunteer = $availableVolunteers->find(function($v) use ($member) {
-                                return ($v->first_name . ' ' . $v->last_name) === $member['name'];
+                            $volunteer = $availableVolunteers->find(function ($v) use ($member) {
+                                return ($v->first_name.' '.$v->last_name) === $member['name'];
                             });
                             if ($volunteer) {
                                 $counts[$volunteer->id] = ($counts[$volunteer->id] ?? 0) + 1;
@@ -610,13 +657,15 @@ class AssignmentController extends Controller
      */
     private function rebalanceOverassignedVolunteer($assignments, $volunteerId, $availableVolunteers)
     {
-        $volunteer = $availableVolunteers->find(function($v) use ($volunteerId) {
+        $volunteer = $availableVolunteers->find(function ($v) use ($volunteerId) {
             return $v->id === $volunteerId;
         });
 
-        if (!$volunteer) return $assignments;
+        if (! $volunteer) {
+            return $assignments;
+        }
 
-        $volunteerName = $volunteer->first_name . ' ' . $volunteer->last_name;
+        $volunteerName = $volunteer->first_name.' '.$volunteer->last_name;
 
         // Find all roles this volunteer is assigned to
         $assignedRoles = [];
@@ -630,7 +679,7 @@ class AssignmentController extends Controller
                                     'section' => $section,
                                     'role' => $role,
                                     'key' => $key,
-                                    'member' => $member
+                                    'member' => $member,
                                 ];
                             }
                         }
@@ -642,9 +691,10 @@ class AssignmentController extends Controller
         // Keep the most suitable role and remove from others
         if (count($assignedRoles) > 1) {
             // Sort by priority (coordinators > specialized roles > general roles)
-            usort($assignedRoles, function($a, $b) {
+            usort($assignedRoles, function ($a, $b) {
                 $priorityA = $this->getRolePriority($a['role']);
                 $priorityB = $this->getRolePriority($b['role']);
+
                 return $priorityB <=> $priorityA;
             });
 
@@ -679,7 +729,7 @@ class AssignmentController extends Controller
             'food_prep' => 4,
             'volunteer_care' => 3,
             'wash_cleanup' => 3,
-            'inventory' => 3
+            'inventory' => 3,
         ];
 
         return $priorities[$role] ?? 1;
@@ -696,20 +746,20 @@ class AssignmentController extends Controller
                 'food_prep' => 3,
                 'volunteer_care' => 2,
                 'wash_cleanup' => 3,
-                'inventory' => 2
+                'inventory' => 2,
             ],
             'am_distribution' => [
                 'team_alpha' => 1,
                 'team_bravo' => 2,
                 'team_charlie1' => 2,
-                'team_charlie2' => 2
+                'team_charlie2' => 2,
             ],
             'pm_distribution' => [
                 'team_delta1' => 2,
                 'team_delta2' => 2,
                 'team_echo' => 2,
-                'team_foxtrot' => 1
-            ]
+                'team_foxtrot' => 1,
+            ],
         ];
 
         foreach ($minimumSizes as $section => $roles) {
@@ -731,8 +781,8 @@ class AssignmentController extends Controller
                         }
                     }
 
-                    $availableVolunteersList = $availableVolunteers->filter(function($v) use ($assignedNames) {
-                        return !in_array($v->first_name . ' ' . $v->last_name, $assignedNames);
+                    $availableVolunteersList = $availableVolunteers->filter(function ($v) use ($assignedNames) {
+                        return ! in_array($v->first_name.' '.$v->last_name, $assignedNames);
                     });
 
                     // Add volunteers to meet minimum size
@@ -740,11 +790,13 @@ class AssignmentController extends Controller
                     $added = 0;
 
                     foreach ($availableVolunteersList as $volunteer) {
-                        if ($added >= $needed) break;
+                        if ($added >= $needed) {
+                            break;
+                        }
 
                         $assignments[$section][$role][] = [
-                            'name' => $volunteer->first_name . ' ' . $volunteer->last_name,
-                            'skill' => 'General'
+                            'name' => $volunteer->first_name.' '.$volunteer->last_name,
+                            'skill' => 'General',
                         ];
                         $added++;
                     }
