@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AttendancePerformanceController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\OrgChartController;
 use App\Http\Controllers\PollController;
@@ -130,4 +131,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/backup/download/{filename}', [BackupController::class, 'download'])->name('admin.backup.download');
     Route::delete('/backup/{filename}', [BackupController::class, 'delete'])->name('admin.backup.delete');
     Route::post('/backup/restore', [BackupController::class, 'restore'])->name('admin.backup.restore');
+    
+    // Chatbot
+    Route::post('/chatbot', [ChatbotController::class, 'sendMessage'])->name('admin.chatbot');
 });
