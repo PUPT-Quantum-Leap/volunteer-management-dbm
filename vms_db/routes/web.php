@@ -131,7 +131,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/backup/download/{filename}', [BackupController::class, 'download'])->name('admin.backup.download');
     Route::delete('/backup/{filename}', [BackupController::class, 'delete'])->name('admin.backup.delete');
     Route::post('/backup/restore', [BackupController::class, 'restore'])->name('admin.backup.restore');
-    
+
     // Chatbot
     Route::post('/chatbot', [ChatbotController::class, 'sendMessage'])->name('admin.chatbot');
 });
