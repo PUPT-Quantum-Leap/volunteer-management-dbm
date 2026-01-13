@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ChatbotController extends Controller
 {
@@ -27,10 +28,13 @@ class ChatbotController extends Controller
 
             $user = Auth::user();
             
+            // Send JWT secret as bearer token (as configured in your n8n webhook)
+            $jwtSecret = config('jwt.secret');
+            
             $response = Http::timeout(30)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . config('jwt.secret')
+                    'Authorization' => 'Bearer ' . $jwtSecret
                 ])
                 ->post($webhookUrl, [
                     'message' => $request->message,
