@@ -1172,6 +1172,9 @@
                 <p class="header-subtitle">Manage volunteers, polls, and system analytics</p>
             </div>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button id="chatbot-toggle-btn" class="btn btn-logout" title="Open Chatbot" aria-label="Open Chatbot" onclick="window.dispatchEvent(new CustomEvent('toggle-admin-chat'))">
+                    <i class="fas fa-robot"></i> Chat
+                </button>
                 <button id="theme-toggle" class="btn btn-logout" title="Toggle dark / light mode" aria-label="Toggle theme">
                     <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
@@ -2369,6 +2372,7 @@
     </script>
     
     <!-- Admin Chatbot Component -->
-    <div id="admin-chatbot-root"></div>
+    <!-- Admin Chatbot Component -->
+    <div id="admin-chatbot-root" data-user-name="{{ Auth::user()->name }}"></div>
 </body>
 </html>
