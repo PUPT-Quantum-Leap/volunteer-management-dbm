@@ -2367,5 +2367,8 @@
             }
         };
     </script>
+    
+    <!-- Admin Chatbot Component -->
+    <div id="admin-chatbot-root"></div>
 </body>
 </html>
