@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AttendancePerformanceController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\OrgChartController;
 use App\Http\Controllers\PollController;
@@ -121,4 +122,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // Poll Management
     Route::get('/polls', [PollManagementController::class, 'index'])->name('admin.polls');
+
+    // Backup Management
+    Route::get('/backup', [BackupController::class, 'index'])->name('admin.backup');
+    Route::get('/backup/list', [BackupController::class, 'list'])->name('admin.backup.list');
+    Route::post('/backup/create', [BackupController::class, 'create'])->name('admin.backup.create');
+    Route::get('/backup/download/{filename}', [BackupController::class, 'download'])->name('admin.backup.download');
+    Route::delete('/backup/{filename}', [BackupController::class, 'delete'])->name('admin.backup.delete');
+    Route::post('/backup/restore', [BackupController::class, 'restore'])->name('admin.backup.restore');
 });
