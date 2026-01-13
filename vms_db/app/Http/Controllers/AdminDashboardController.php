@@ -90,9 +90,9 @@ class AdminDashboardController extends BaseController
         $volunteer = Volunteer::create($validated);
 
         return response()->json([
-            'success' => true, 
+            'success' => true,
             'message' => 'Volunteer created successfully!',
-            'volunteer' => $volunteer
+            'volunteer' => $volunteer,
         ]);
     }
 
