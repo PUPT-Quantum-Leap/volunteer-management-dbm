@@ -16,13 +16,13 @@ JWT (JSON Web Token) authentication has been configured for securing webhook com
 The following JWT configuration has been added to `.env`:
 
 ```env
-JWT_SECRET=YOURVERYLONGSTRINGOFJWTSECRETKEYAROUND64BYTES
+JWT_SECRET=YOURVERYLONGSTRINGOFJWTSECRETKEYAROUND256BYTES
 JWT_TTL=60
 JWT_REFRESH_TTL=20160
 ```
 
 **Configuration Explanation:**
-- `JWT_SECRET`: 64-byte base64-encoded secret key used to sign and verify tokens
+- `JWT_SECRET`: 256-byte encoded secret key used to sign and verify tokens
 - `JWT_TTL`: Token time-to-live in minutes (60 minutes = 1 hour)
 - `JWT_REFRESH_TTL`: Refresh token validity in minutes (20160 minutes = 2 weeks)
 
