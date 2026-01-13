@@ -1239,6 +1239,10 @@
             <i class="fas fa-user-shield"></i>
             <span>User Management</span>
         </a>
+        <a href="#" class="nav-item key" onclick="showPage('backup')">
+            <i class="fas fa-database"></i>
+            <span>Backup & Restore</span>
+        </a>
     </nav>
 
     <!-- Main Content -->
@@ -1487,6 +1491,55 @@
                         </button>
                     </div>
                     <p style="text-align: center; color: #999; padding: 2rem;">User management coming soon...</p>
+                </div>
+            </div>
+
+            <!-- Backup Page -->
+            <div id="backup-page" class="page page-hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Database Backup & Restore</h2>
+                        <button class="btn btn-primary" onclick="createBackup()">
+                            <i class="fas fa-download"></i> Create Backup
+                        </button>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Create regular backups to protect your volunteer management data. Backups include all users, volunteers, polls, attendance records, and performance data.</span>
+                    </div>
+
+                    <!-- Restore Section -->
+                    <div class="card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h3 class="card-title">Restore Database</h3>
+                        </div>
+                        <form id="restore-form" onsubmit="restoreDatabase(event)" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label class="form-label">Select Backup File (.sql)</label>
+                                <input type="file" class="form-input" id="backup-file" accept=".sql" required>
+                                <small style="color: #999; display: block; margin-top: 0.5rem;">
+                                    <i class="fas fa-exclamation-triangle"></i> 
+                                    Warning: This will replace ALL current data. A backup will be created automatically before restoring.
+                                </small>
+                            </div>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-upload"></i> Restore Database
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Existing Backups -->
+                    <div class="card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h3 class="card-title">Existing Backups</h3>
+                        </div>
+                        <div id="backups-list">
+                            <div style="text-align: center; padding: 2rem; color: #999;">
+                                <i class="fas fa-spinner fa-spin"></i> Loading backups...
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2086,6 +2139,233 @@
         function confirmLogout() {
             document.getElementById('logout-form').submit();
         }
+
+        // Backup Functions
+        function loadBackups() {
+            fetch('/admin/backup/list')
+                .then(response => response.json())
+                .then(data => {
+                    renderBackupsList(data);
+                })
+                .catch(error => {
+                    console.error('Error loading backups:', error);
+                    document.getElementById('backups-list').innerHTML = 
+                        '<div style="text-align: center; padding: 2rem; color: #ef4444;">Error loading backups: ' + error.message + '</div>';
+                });
+        }
+
+        function renderBackupsList(backups) {
+            const backupsList = document.getElementById('backups-list');
+            
+            if (backups.length === 0) {
+                backupsList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #999;">
+                        <i class="fas fa-database" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>No backups found. Create your first backup to protect your data.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Size</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            backups.forEach(backup => {
+                html += `
+                    <tr>
+                        <td>
+                            <i class="fas fa-file-code"></i>
+                            ${backup.filename}
+                        </td>
+                        <td>${backup.size}</td>
+                        <td>${backup.created_at}</td>
+                        <td>
+                            <div class="action-links">
+                                <button class="action-btn action-btn-view" onclick="downloadBackup('${backup.filename}')" title="Download">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button class="action-btn action-btn-delete" onclick="deleteBackup('${backup.filename}')" title="Delete">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            backupsList.innerHTML = html;
+        }
+
+        function createBackup() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Backup...';
+            button.disabled = true;
+
+            fetch('/admin/backup/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', data.message);
+                    loadBackups(); // Refresh backups list
+                } else {
+                    showAlert('error', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error creating backup:', error);
+                showAlert('error', 'Failed to create backup: ' + error.message);
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+
+        function downloadBackup(filename) {
+            window.location.href = `/admin/backup/download/${filename}`;
+        }
+
+        function deleteBackup(filename) {
+            if (!confirm(`Are you sure you want to delete backup "${filename}"?`)) {
+                return;
+            }
+
+            fetch(`/admin/backup/${filename}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', data.message);
+                    loadBackups(); // Refresh the backups list
+                } else {
+                    showAlert('error', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting backup:', error);
+                showAlert('error', 'Failed to delete backup');
+            });
+        }
+
+        function restoreDatabase(event) {
+            event.preventDefault();
+            
+            if (!confirm('Are you sure you want to restore the database? This will replace all current data!')) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('backup_file', document.getElementById('backup-file').files[0]);
+
+            const button = event.target.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Restoring...';
+            button.disabled = true;
+
+            fetch('/admin/backup/restore', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                console.log('Restore response status:', response.status);
+                console.log('Restore response headers:', response.headers);
+                
+                // Check if response is JSON or HTML
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // If not JSON, try to get text and see if it's HTML
+                    return response.text().then(text => {
+                        if (text.trim().startsWith('<!DOCTYPE')) {
+                            throw new Error('Server returned HTML error page instead of JSON');
+                        }
+                        try {
+                            return JSON.parse(text);
+                        } catch (e) {
+                            throw new Error('Invalid response format: ' + text.substring(0, 200));
+                        }
+                    });
+                }
+            })
+            .then(data => {
+                console.log('Restore response data:', data);
+                if (data.success) {
+                    showAlert('success', data.message);
+                    document.getElementById('restore-form').reset();
+                    loadBackups(); // Refresh backups list
+                } else {
+                    showAlert('error', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error restoring database:', error);
+                showAlert('error', 'Failed to restore database: ' + error.message);
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+
+        function showAlert(type, message) {
+            // Create alert element
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type === 'error' ? 'error' : 'success'}`;
+            alert.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            document.body.appendChild(alert);
+
+            // Remove alert after 5 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Load backups when backup page is shown
+        const originalShowPage = showPage;
+        showPage = function(pageName) {
+            originalShowPage(pageName);
+            
+            if (pageName === 'backup') {
+                loadBackups();
+            }
+        };
     </script>
 </body>
 </html>
