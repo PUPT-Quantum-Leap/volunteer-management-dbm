@@ -7,9 +7,6 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class BackupController extends BaseController
 {
@@ -93,7 +90,7 @@ class BackupController extends BaseController
     {
         try {
             $backupPath = storage_path('app/backups');
-            
+
             // Create backup directory if it doesn't exist
             if (! File::exists($backupPath)) {
                 File::makeDirectory($backupPath, 0755, true);
@@ -114,13 +111,13 @@ class BackupController extends BaseController
                 'success' => true,
                 'message' => 'Backup created successfully',
                 'filename' => $filename,
-                'size' => $this->formatBytes(File::size($filepath))
+                'size' => $this->formatBytes(File::size($filepath)),
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create backup: ' . $e->getMessage()
+                'message' => 'Failed to create backup: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -151,20 +148,21 @@ class BackupController extends BaseController
         if (! File::exists($filepath)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Backup file not found'
+                'message' => 'Backup file not found',
             ], 404);
         }
 
         try {
             File::delete($filepath);
+
             return response()->json([
                 'success' => true,
-                'message' => 'Backup deleted successfully'
+                'message' => 'Backup deleted successfully',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete backup: ' . $e->getMessage()
+                'message' => 'Failed to delete backup: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -177,22 +175,23 @@ class BackupController extends BaseController
         try {
             // Validate the request
             $validator = \Validator::make($request->all(), [
-                'backup_file' => 'required|file|max:10240' // Max 10MB, removed mimes restriction
+                'backup_file' => 'required|file|max:10240', // Max 10MB, removed mimes restriction
             ]);
 
             if ($validator->fails()) {
                 \Log::warning('Restore validation failed', [
                     'errors' => $validator->errors()->toArray(),
-                    'request_data' => $request->all()
+                    'request_data' => $request->all(),
                 ]);
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation failed: ' . $validator->errors()->first()
+                    'message' => 'Validation failed: '.$validator->errors()->first(),
                 ], 422);
             }
 
             $file = $request->file('backup_file');
-            
+
             // Debug: Log file info
             \Log::info('Restore attempt started', [
                 'original_name' => $file->getClientOriginalName(),
@@ -201,56 +200,57 @@ class BackupController extends BaseController
                 'temp_path' => $file->getPathname(),
                 'extension' => $file->getClientOriginalExtension(),
                 'is_valid' => $file->isValid(),
-                'error' => $file->getError()
+                'error' => $file->getError(),
             ]);
-            
+
             $tempPath = $file->getPathname();
-            
+
             // Verify file exists and is readable
-            if (!file_exists($tempPath) || !is_readable($tempPath)) {
+            if (! file_exists($tempPath) || ! is_readable($tempPath)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Backup file is not accessible'
+                    'message' => 'Backup file is not accessible',
                 ], 400);
             }
-            
+
             // Create a backup before restoring
             $this->createQuickBackup();
 
             // Read and execute SQL from backup file
             $sqlContent = file_get_contents($tempPath);
-            
+
             if (empty($sqlContent)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Backup file is empty or invalid'
+                    'message' => 'Backup file is empty or invalid',
                 ], 400);
             }
-            
+
             \Log::info('Backup file read successfully', ['size' => strlen($sqlContent)]);
-            
+
             // Check if this is a selective restore (only specific data)
             $isSelectiveRestore = $request->has('restore_type') && $request->restore_type === 'selective';
-            
+
             if ($isSelectiveRestore) {
                 return $this->selectiveRestore($sqlContent, $request);
             }
-            
+
             // Full database restore
             return $this->fullRestore($sqlContent);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             // Re-enable foreign key checks in case of error
             try {
                 DB::statement('SET FOREIGN_KEY_CHECKS=1');
-            } catch (\Exception $ignore) {}
-            
+            } catch (\Exception $ignore) {
+            }
+
             \Log::error('Restore failed', ['error' => $e->getMessage()]);
-            
+
             return response()->json([
                 'success' => false,
-                'message' => 'Restore failed: ' . $e->getMessage()
+                'message' => 'Restore failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -263,15 +263,15 @@ class BackupController extends BaseController
         // Get selected tables to restore
         $selectedTables = $request->get('tables', []);
         $selectedIds = $request->get('ids', []);
-        
+
         \Log::info('Selective restore', [
             'selected_tables' => $selectedTables,
-            'selected_ids' => $selectedIds
+            'selected_ids' => $selectedIds,
         ]);
-        
+
         // For now, implement as full restore with warning
         \Log::warning('Selective restore not fully implemented, performing full restore');
-        
+
         return $this->fullRestore($sqlContent);
     }
 
@@ -283,39 +283,40 @@ class BackupController extends BaseController
         // Disable foreign key checks and set SQL mode
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
         DB::statement('SET SQL_MODE=NO_AUTO_VALUE_ON_ZERO');
-        
+
         // Split SQL into individual statements
         $statements = array_filter(array_map('trim', explode(';', $sqlContent)));
-        
+
         \Log::info('Processing SQL statements', ['count' => count($statements)]);
-        
+
         $executedCount = 0;
         $errors = [];
-        
+
         // Process statements in order, but handle table operations carefully
         foreach ($statements as $index => $statement) {
-            if (!empty($statement)) {
+            if (! empty($statement)) {
                 // Remove comments from the beginning of statements
                 $statement = preg_replace('/^--.*?\n/', '', $statement);
                 $statement = trim($statement);
-                
+
                 if (empty($statement)) {
                     continue;
                 }
-                
+
                 try {
                     // For DROP TABLE IF EXISTS statements, execute immediately
                     if (stripos($statement, 'DROP TABLE IF EXISTS') === 0) {
                         DB::statement($statement);
                         $executedCount++;
-                        
+
                         \Log::info('DROP TABLE executed', [
                             'index' => $index,
-                            'statement' => substr($statement, 0, 100)
+                            'statement' => substr($statement, 0, 100),
                         ]);
+
                         continue;
                     }
-                    
+
                     // For CREATE TABLE statements, execute immediately after ensuring table doesn't exist
                     if (stripos($statement, 'CREATE TABLE') === 0) {
                         // Extract table name to double-check
@@ -326,74 +327,75 @@ class BackupController extends BaseController
                                 DB::statement("DROP TABLE IF EXISTS `{$tableName}`");
                                 \Log::info("Extra DROP TABLE executed for {$tableName}");
                             } catch (\Exception $e) {
-                                \Log::warning("Extra DROP failed for {$tableName}: " . $e->getMessage());
+                                \Log::warning("Extra DROP failed for {$tableName}: ".$e->getMessage());
                             }
                         }
-                        
+
                         DB::statement($statement);
                         $executedCount++;
-                        
+
                         \Log::info('CREATE TABLE executed', [
                             'index' => $index,
-                            'statement' => substr($statement, 0, 100)
+                            'statement' => substr($statement, 0, 100),
                         ]);
+
                         continue;
                     }
-                    
+
                     // For INSERT statements, use REPLACE INTO to handle conflicts
                     if (stripos($statement, 'INSERT INTO') === 0) {
                         $statement = preg_replace('/^INSERT INTO/i', 'REPLACE INTO', $statement);
-                        
+
                         // Log the exact statement being executed for debugging
                         \Log::info('Executing REPLACE statement', [
                             'original_length' => strlen($statement),
-                            'statement_preview' => substr($statement, 0, 300)
+                            'statement_preview' => substr($statement, 0, 300),
                         ]);
                     }
-                    
+
                     // Execute all other statements
                     DB::statement($statement);
                     $executedCount++;
-                    
+
                     \Log::info('Statement executed successfully', [
                         'index' => $index,
-                        'statement_type' => substr($statement, 0, 20)
+                        'statement_type' => substr($statement, 0, 20),
                     ]);
-                    
+
                 } catch (\Exception $e) {
                     $errorInfo = [
                         'index' => $index,
                         'error' => $e->getMessage(),
                         'error_code' => $e->getCode(),
                         'statement' => substr($statement, 0, 500),
-                        'statement_length' => strlen($statement)
+                        'statement_length' => strlen($statement),
                     ];
                     $errors[] = $errorInfo;
-                    
+
                     \Log::error('Statement failed during restore', $errorInfo);
-                    
+
                     // For CREATE TABLE errors, this is critical
                     if (stripos($statement, 'CREATE TABLE') === 0) {
-                        throw new \Exception("Critical error during table creation: " . $e->getMessage());
+                        throw new \Exception('Critical error during table creation: '.$e->getMessage());
                     }
                 }
             }
         }
-        
+
         // Re-enable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
-        
+
         \Log::info('Full restore completed', [
             'executed_statements' => $executedCount,
             'errors_count' => count($errors),
-            'warning' => 'This will overwrite ALL existing data including recently deleted records.'
+            'warning' => 'This will overwrite ALL existing data including recently deleted records.',
         ]);
 
         // Force phpMyAdmin to refresh by switching to the same database
         $this->refreshPhpMyAdmin();
 
         $message = 'Database restored successfully. Note: All existing data was overwritten.';
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             $message .= ' Some statements had errors but the restore completed.';
         }
 
@@ -401,7 +403,7 @@ class BackupController extends BaseController
             'success' => true,
             'message' => $message,
             'executed_count' => $executedCount,
-            'errors_count' => count($errors)
+            'errors_count' => count($errors),
         ]);
     }
 
@@ -413,7 +415,7 @@ class BackupController extends BaseController
         try {
             // Get current database config
             $dbConfig = config('database.connections.mysql');
-            
+
             // Create a temporary config file for phpMyAdmin
             $tempConfig = [
                 'host' => $dbConfig['host'],
@@ -422,20 +424,20 @@ class BackupController extends BaseController
                 'db' => $dbConfig['database'],
                 'port' => $dbConfig['port'] ?? 3306,
             ];
-            
+
             // Write temporary config file
-            $configContent = "<?php\nreturn " . var_export($tempConfig, true) . ";\n";
-            $tempConfigFile = sys_get_temp_dir() . '/phpmyadmin_config.php';
+            $configContent = "<?php\nreturn ".var_export($tempConfig, true).";\n";
+            $tempConfigFile = sys_get_temp_dir().'/phpmyadmin_config.php';
             file_put_contents($tempConfigFile, $configContent);
-            
+
             \Log::info('phpMyAdmin refresh config created', [
                 'config_file' => $tempConfigFile,
-                'database' => $dbConfig['database']
+                'database' => $dbConfig['database'],
             ]);
-            
+
         } catch (\Exception $e) {
             \Log::error('Failed to create phpMyAdmin refresh config', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -455,10 +457,10 @@ class BackupController extends BaseController
             $dbConfig['database'],
             $filepath
         );
-        
+
         exec($command, $output, $returnCode);
-        
-        if ($returnCode !== 0 || !File::exists($filepath) || File::size($filepath) === 0) {
+
+        if ($returnCode !== 0 || ! File::exists($filepath) || File::size($filepath) === 0) {
             // Fallback to PHP-based backup
             $this->createPhpBackup($filepath);
         }
@@ -469,16 +471,16 @@ class BackupController extends BaseController
      */
     private function createPhpBackup($filepath)
     {
-        $tables = DB::select("SHOW TABLES");
-        $tableField = 'Tables_in_' . DB::getDatabaseName();
-        
-        $sql = "-- Database Backup - " . date('Y-m-d H:i:s') . "\n";
+        $tables = DB::select('SHOW TABLES');
+        $tableField = 'Tables_in_'.DB::getDatabaseName();
+
+        $sql = '-- Database Backup - '.date('Y-m-d H:i:s')."\n";
         $sql .= "-- Generated by Volunteer Management System\n";
-        $sql .= "-- MySQL Database: " . DB::getDatabaseName() . "\n\n";
+        $sql .= '-- MySQL Database: '.DB::getDatabaseName()."\n\n";
 
         foreach ($tables as $table) {
             $tableName = $table->$tableField;
-            
+
             // Skip certain system tables
             if (in_array($tableName, ['failed_jobs', 'jobs', 'cache', 'cache_locks', 'sessions', 'password_reset_tokens'])) {
                 continue;
@@ -486,17 +488,17 @@ class BackupController extends BaseController
 
             // Get table structure
             $createTable = DB::select("SHOW CREATE TABLE `{$tableName}`");
-            if (!empty($createTable)) {
+            if (! empty($createTable)) {
                 $sql .= "-- Table structure for {$tableName}\n";
                 $sql .= "DROP TABLE IF EXISTS `{$tableName}`;\n";
-                
+
                 // Get the CREATE TABLE statement and reset auto_increment
                 $createTableSql = $createTable[0]->{'Create Table'};
                 // Remove AUTO_INCREMENT value to ensure clean restore
                 $createTableSql = preg_replace('/AUTO_INCREMENT\s*=\s*\d+\s*/', '', $createTableSql);
-                
-                $sql .= $createTableSql . ";\n\n";
-                
+
+                $sql .= $createTableSql.";\n\n";
+
                 // Get table data
                 $rows = DB::table($tableName)->get();
                 if ($rows->isNotEmpty()) {
@@ -512,10 +514,10 @@ class BackupController extends BaseController
                             } elseif (is_numeric($value)) {
                                 $values[] = $value;
                             } else {
-                                $values[] = "'" . addslashes($value) . "'";
+                                $values[] = "'".addslashes($value)."'";
                             }
                         }
-                        $sql .= "INSERT INTO `{$tableName}` VALUES (" . implode(', ', $values) . ");\n";
+                        $sql .= "INSERT INTO `{$tableName}` VALUES (".implode(', ', $values).");\n";
                     }
                     $sql .= "\n";
                 }
@@ -531,7 +533,7 @@ class BackupController extends BaseController
     private function createQuickBackup()
     {
         $backupPath = storage_path('app/backups');
-        
+
         if (! File::exists($backupPath)) {
             File::makeDirectory($backupPath, 0755, true);
         }
@@ -569,11 +571,11 @@ class BackupController extends BaseController
     private function formatBytes($bytes, $precision = 2)
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        
+
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
 
-        return round($bytes, $precision) . ' ' . $units[$i];
+        return round($bytes, $precision).' '.$units[$i];
     }
 }
