@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'webhook' => [
+        'url' => env('AI_WEBHOOK_URL'),
+    ],
+
 ];
