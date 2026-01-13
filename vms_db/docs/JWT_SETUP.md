@@ -16,7 +16,7 @@ JWT (JSON Web Token) authentication has been configured for securing webhook com
 The following JWT configuration has been added to `.env`:
 
 ```env
-JWT_SECRET=r24rBGBo95Ec7Ql8f537Pz6oB6kTIFT+oBVjKvVgWMUQpxVkug2A1K+nNTkg03FmizpqDDPQ0OGf4zK2jJpFJA==
+JWT_SECRET=YOURVERYLONGSTRINGOFJWTSECRETKEYAROUND64BYTES
 JWT_TTL=60
 JWT_REFRESH_TTL=20160
 ```
