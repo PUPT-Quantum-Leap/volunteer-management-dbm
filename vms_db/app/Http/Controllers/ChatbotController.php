@@ -83,9 +83,21 @@ class ChatbotController extends Controller
             if ($response->successful()) {
                 $data = $response->json();
                 
+                // Extract output from n8n response format: [{"output": "text"}]
+                $responseText = 'Response received';
+                if (is_array($data) && isset($data[0]['output'])) {
+                    $responseText = $data[0]['output'];
+                } elseif (isset($data['output'])) {
+                    $responseText = $data['output'];
+                } elseif (isset($data['response'])) {
+                    $responseText = $data['response'];
+                } elseif (isset($data['message'])) {
+                    $responseText = $data['message'];
+                }
+                
                 return response()->json([
                     'success' => true,
-                    'response' => $data['response'] ?? $data['message'] ?? 'Response received',
+                    'response' => $responseText,
                 ]);
             }
 
