@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key\InMemory;
 
 class ChatbotController extends Controller
 {
@@ -28,15 +30,50 @@ class ChatbotController extends Controller
 
             $user = Auth::user();
             
-            // Send JWT secret as bearer token (as configured in your n8n webhook)
-            $jwtSecret = config('jwt.secret');
+            // Generate JWT token matching n8n's expected format
+            try {
+                // Use plainText encoding instead of base64
+                $config = Configuration::forSymmetricSigner(
+                    new Sha256(),
+                    InMemory::plainText(config('jwt.secret'))
+                );
+                
+                $now = time(); // Unix timestamp
+                $token = $config->builder()
+                    ->identifiedBy(uniqid('vms_', true)) // jti claim
+                    ->relatedTo($user ? $user->email : 'admin@system') // sub claim (user identifier)
+                    ->issuedAt(\DateTimeImmutable::createFromFormat('U', (string)$now))
+                    ->expiresAt(\DateTimeImmutable::createFromFormat('U', (string)($now + 86400))) // 24 hours
+                    ->getToken($config->signer(), $config->signingKey())
+                    ->toString();
+                    
+                Log::info('JWT token generated', [
+                    'token_preview' => substr($token, 0, 50) . '...',
+                    'user_email' => $user ? $user->email : 'admin@system'
+                ]);
+            } catch (\Exception $e) {
+                Log::error('JWT generation failed: ' . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authentication error'
+                ], 500);
+            }
+            
+            // Generate session ID based on user email (consistent across requests)
+            $userEmail = $user ? $user->email : 'admin@system';
+            $sessionId = 'chat-' . $userEmail . '-' . uniqid();
+            
+            // Check if session ID exists in session, otherwise create new one
+            $sessionId = session('chatbot_session_id', $sessionId);
+            session(['chatbot_session_id' => $sessionId]);
             
             $response = Http::timeout(30)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $jwtSecret
+                    'Authorization' => 'Bearer ' . $token
                 ])
                 ->post($webhookUrl, [
+                    'sessionId' => $sessionId,
                     'message' => $request->message,
                     'user_id' => $user ? $user->id : null,
                     'user_name' => $user ? ($user->name ?? 'Admin') : 'Admin',
